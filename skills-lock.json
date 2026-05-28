@@ -1,0 +1,455 @@
+{
+  "version": 1,
+  "skills": {
+    "animejs": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/animejs/SKILL.md",
+      "computedHash": "314c655fbc0df7eacc6f3853435ff8b03c2a771fad7435a58e2c4489a780d1b7"
+    },
+    "api-design": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/api-design/SKILL.md",
+      "computedHash": "718b7be2b2c0798d4da7f79d860cc2af8ca114f55b5ff508e93c2feb468d20c2"
+    },
+    "api-design-principles": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/api-design-principles/SKILL.md",
+      "computedHash": "853df00266999c9cddf8b6bbd563cf0fe822c1cf8463ef0c584c4af457d87b95"
+    },
+    "api-documentation": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/api-documentation/SKILL.md",
+      "computedHash": "148c3b73f6dd9218c7d835064a4ae7a7443e878f21503d7bd98f2c6eb51b6647"
+    },
+    "api-documentation-generator": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/api-documentation-generator/SKILL.md",
+      "computedHash": "aedba614a1b82f897a54b77322c26c8707a1c25ed374386b8a57cf3731a68c65"
+    },
+    "api-documenter": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/api-documenter/SKILL.md",
+      "computedHash": "d9ffc20b01eb2b82da90d3e2e730ec162f0836fef6e33c8a05379e104e48c336"
+    },
+    "api-endpoint-builder": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/api-endpoint-builder/SKILL.md",
+      "computedHash": "55cc8e681118856c748a4e3e9366d72648d7ee66c916128cbc50cac4c6155684"
+    },
+    "api-patterns": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/api-patterns/SKILL.md",
+      "computedHash": "12fc7cef305ded0a373cf34dcf3808dfa5ea5c31d30e638ef6d86be31dc76411"
+    },
+    "api-security-best-practices": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/api-security-best-practices/SKILL.md",
+      "computedHash": "5a088c5b84b75ed44955e7a153b4af20b5a70b6430e86d0f0398b824cc9efb20"
+    },
+    "architect-review": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/architect-review/SKILL.md",
+      "computedHash": "aadde115bc2d58ce62a31bec8973fefbd90b5d52b3da10a096cffb7f881c74df"
+    },
+    "architecture": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/architecture/SKILL.md",
+      "computedHash": "98b5d7fa700e2cb98cb7a2e55fb3c8dab460b87cc802f23a09c86031668f72d4"
+    },
+    "architecture-decision-records": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/architecture-decision-records/SKILL.md",
+      "computedHash": "8b02a3fbfc6e87bbc9f58fdb9998364d25615f410f86df6154a253aac5fe1901"
+    },
+    "architecture-patterns": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/architecture-patterns/SKILL.md",
+      "computedHash": "df4b1173a32fe59a5da5a9cadd9bd23c21a9e944e3d26827d0d98f6b9afd5d11"
+    },
+    "backend-architect": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/backend-architect/SKILL.md",
+      "computedHash": "991cd650814b2e4e434720ebe20ae8d00e1b2c8a3ac3193c1a5d477e729b595c"
+    },
+    "backend-dev-guidelines": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/backend-dev-guidelines/SKILL.md",
+      "computedHash": "65fe3c053c8c1e790268293098a505ae02ae6997df82f6e9f74b0736dab0fc76"
+    },
+    "backend-development-feature-development": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/backend-development-feature-development/SKILL.md",
+      "computedHash": "1edf20ba71a9cff20cdd6945234f89e63e1966e0963b9d6cb1ba6688f05cafc2"
+    },
+    "backend-patterns": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/backend-patterns/SKILL.md",
+      "computedHash": "0f4cb3da46b8ce80176f9dbd241242e3033a999b32e952f2467faba4d38d69c9"
+    },
+    "backend-security-coder": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/backend-security-coder/SKILL.md",
+      "computedHash": "b62655410aaea528433b7adda9f8fb971a5a7d7a6db3a365474c52061a703ca5"
+    },
+    "c4-architecture-c4-architecture": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/c4-architecture-c4-architecture/SKILL.md",
+      "computedHash": "87ed5382d870bd2068da66e804f2e0f03e437361e83667f00e95c7440df509ec"
+    },
+    "c4-code": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/c4-code/SKILL.md",
+      "computedHash": "5f461f15d5146b92f130c9c1854843d5cde2191841823c79b9a8a4b55998d44f"
+    },
+    "c4-component": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/c4-component/SKILL.md",
+      "computedHash": "c7f9828c9cb69413f2fea603d2c91b75bacfb30834c6d684cedb30ab5ad16884"
+    },
+    "c4-container": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/c4-container/SKILL.md",
+      "computedHash": "6923656c7c3e660c6a51a5a05a8fd29bb010ea91fc74df334a3cdef010d17365"
+    },
+    "c4-context": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/c4-context/SKILL.md",
+      "computedHash": "a9f59a74bfe40426a9ad62e53f6d6130181b7ba36adaee1a3ba871ddacc014ee"
+    },
+    "code-refactoring-context-restore": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/code-refactoring-context-restore/SKILL.md",
+      "computedHash": "be0d95eeb1796ba99282955a4745c38ef43df7d949061ff36eac7200b10712b8"
+    },
+    "code-refactoring-refactor-clean": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/code-refactoring-refactor-clean/SKILL.md",
+      "computedHash": "b5fcfe8cf5c9f2aa155c23e38db89dcc34cfd5bc78f2e2fde821b43c2f8326cc"
+    },
+    "code-refactoring-tech-debt": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/code-refactoring-tech-debt/SKILL.md",
+      "computedHash": "710983402c8d1380cf6fbd522aa9dacd6f2ee900c487d5c3e40b5b4d2fb50e68"
+    },
+    "code-review-checklist": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/code-review-checklist/SKILL.md",
+      "computedHash": "9bd8c2a4865d5bf86196192b73fe9658cdf38c90c4590545f2c7636b65a34b22"
+    },
+    "code-review-excellence": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/code-review-excellence/SKILL.md",
+      "computedHash": "c4d662900a8d2f85e8aae735baf5e9ee15ff127b1568d9567e59d5fd8bc7899f"
+    },
+    "code-reviewer": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/code-reviewer/SKILL.md",
+      "computedHash": "b33d78bb544b6c163c32b9c02c80b143b753f3a91b9d8fdcfe8e4f9ec93ab34b"
+    },
+    "coding-standards": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/coding-standards/SKILL.md",
+      "computedHash": "30be57d3bc2d6db11eea334d3d437b1c51b2a70156d041668b96b08cff0a1032"
+    },
+    "contribute-catalog": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/contribute-catalog/SKILL.md",
+      "computedHash": "31733d362afeb07d5716e267cf94ae487740c3e52f5e60ad714e085c95a03b73"
+    },
+    "critical-review": {
+      "source": "bichikim/web",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/critical-review/SKILL.md",
+      "computedHash": "0f074a7a1548ba8d73cac80aa892fe0a029c573bb4a44c16ab9c0c890ce585cf"
+    },
+    "css-animations": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/css-animations/SKILL.md",
+      "computedHash": "df468749b06a8ec7369cfea69bf71bf65e46cfc376e837e439e26f4230852c6b"
+    },
+    "design-orchestration": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/design-orchestration/SKILL.md",
+      "computedHash": "cdeba19c9f6d0d2f096dce61a4e3d9e2918fbe153131f330f00a72b7705bdda7"
+    },
+    "design-taste-frontend": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/design-taste-frontend/SKILL.md",
+      "computedHash": "e4ef0064c0986135fc0f5a6452db8cf262c67d0da80f1e489378fad3752f0785"
+    },
+    "docker-expert": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/docker-expert/SKILL.md",
+      "computedHash": "0974b5f64fcd284c1bd662810e2388f7beb9be6784c597de4d0ad4213ccbd6af"
+    },
+    "documentation": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/documentation/SKILL.md",
+      "computedHash": "1aecbc6119310005ec0781d5c7b842898d448edf3e9817eba39561fcae91adf0"
+    },
+    "documentation-generation-doc-generate": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/documentation-generation-doc-generate/SKILL.md",
+      "computedHash": "906b5f19dbddedb33b25cbbef080032d987da8f7b19c94be1a56b5a4e40db297"
+    },
+    "documentation-templates": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/documentation-templates/SKILL.md",
+      "computedHash": "d587f306cdf65365e78ce9e4a6170c7c80a58ee5266d994b5c7f3558235ff1d5"
+    },
+    "error-handling-patterns": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/error-handling-patterns/SKILL.md",
+      "computedHash": "be627aa8dd0f547d03ed908b09acc51eb44d851144e62bbf0596c570f8b14c61"
+    },
+    "fastapi-patterns": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/fastapi-patterns/SKILL.md",
+      "computedHash": "ee1afe686391e7bbec4519730a7f5dfe2a0ed60cd5583409a47f93b01802efde"
+    },
+    "frontend-a11y": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-a11y/SKILL.md",
+      "computedHash": "3afc721c562217606e876155689dbbfa90afd84f686fb47f5f0bdcf387a3eb2f"
+    },
+    "frontend-design-direction": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design-direction/SKILL.md",
+      "computedHash": "5a6eb2922ac728866d303de3e92d675f2ed6cb54ca651b30e857a237b0f87a27"
+    },
+    "frontend-patterns": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-patterns/SKILL.md",
+      "computedHash": "b06e633e783acfc364cf08cf44ee0fe48ece7e8c727457b188046e5ece25836f"
+    },
+    "git": {
+      "source": "bichikim/web",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/git/SKILL.md",
+      "computedHash": "3af3a740f4e5a2de8ffc903994a0f900335dc75b02d3b5ed774233c51b4f1e9a"
+    },
+    "git-workflow": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/git-workflow/SKILL.md",
+      "computedHash": "39fe09042938edf9e2ae7e985c383f0c65d872a630f4f50a600b0a8efdd8deb4"
+    },
+    "github-ops": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/github-ops/SKILL.md",
+      "computedHash": "8ab8c4050fc1d15e3bd1852deb33b6958ab605f68622ece949c29cd5fd21644d"
+    },
+    "golang-patterns": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/golang-patterns/SKILL.md",
+      "computedHash": "67c25e95cec3f3166c2efefd5f4502863a1246c6f742b8cbcd2e2864d2a8182a"
+    },
+    "gsap": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/gsap/SKILL.md",
+      "computedHash": "ef2658b3705d3fd5c8e38d197b31521553a0bee3b40bda2ab70bf22bd6b88854"
+    },
+    "gsap-core": {
+      "source": "nexu-io/open-design",
+      "sourceType": "github",
+      "skillPath": "skills/gsap-core/SKILL.md",
+      "computedHash": "e14468bc306183d19db463dd622163a62013c1fd4424ac2794e06ce636117aea"
+    },
+    "gsap-frameworks": {
+      "source": "nexu-io/open-design",
+      "sourceType": "github",
+      "skillPath": "skills/gsap-frameworks/SKILL.md",
+      "computedHash": "6041853821d9252ca63d72924e0191d7ad9b4c6e6da0328722fa1a1a8fa7e3cb"
+    },
+    "gsap-performance": {
+      "source": "nexu-io/open-design",
+      "sourceType": "github",
+      "skillPath": "skills/gsap-performance/SKILL.md",
+      "computedHash": "5cf5d7dafdf20e57131d6a81a44208a2800cc07f9e93db6507925c8dad999980"
+    },
+    "gsap-plugins": {
+      "source": "nexu-io/open-design",
+      "sourceType": "github",
+      "skillPath": "skills/gsap-plugins/SKILL.md",
+      "computedHash": "15a5dfe91efd4ecaa4038b1eb7554169523dfebfbb680ec8b0cbceb0eb542ce3"
+    },
+    "gsap-react": {
+      "source": "nexu-io/open-design",
+      "sourceType": "github",
+      "skillPath": "skills/gsap-react/SKILL.md",
+      "computedHash": "22109aaf856e9a036e7bf1a7425b7847059fb7fcac576ce55d21549fca110ec6"
+    },
+    "gsap-scrolltrigger": {
+      "source": "nexu-io/open-design",
+      "sourceType": "github",
+      "skillPath": "skills/gsap-scrolltrigger/SKILL.md",
+      "computedHash": "87845b8d368aa61a7926640d560ee6fa55f0bde49745c6c2a0de62f1bffa474c"
+    },
+    "gsap-timeline": {
+      "source": "nexu-io/open-design",
+      "sourceType": "github",
+      "skillPath": "skills/gsap-timeline/SKILL.md",
+      "computedHash": "46bb93e0fae1a8b2aebe37ed3704f215a317539e38fcd86cb4d0af0ffc81ffe1"
+    },
+    "gsap-utils": {
+      "source": "nexu-io/open-design",
+      "sourceType": "github",
+      "skillPath": "skills/gsap-utils/SKILL.md",
+      "computedHash": "36943f0cd68caebff81a92db0f98539cffef944a7aefe4be912630fbfd869879"
+    },
+    "javascript-mastery": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/javascript-mastery/SKILL.md",
+      "computedHash": "ac6d598ca4e8e2b988bd3e8d7dfb45845a0d8d4876e519e97c0116cefd323b8e"
+    },
+    "javascript-pro": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/javascript-pro/SKILL.md",
+      "computedHash": "455b01f015d389f056b78d975af55d5b297a97319cc0331a0c6f4f40f2920baa"
+    },
+    "nodejs-backend-patterns": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/nodejs-backend-patterns/SKILL.md",
+      "computedHash": "912fa183d031f99b16bfdf29bbedb3dd11e5a59aa48d880777e1497db1e16b5c"
+    },
+    "nodejs-best-practices": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/nodejs-best-practices/SKILL.md",
+      "computedHash": "3e025f24a1948fcbfe666eabc757f5b426271b08a420a86dba1ea7518cc7b369"
+    },
+    "python-patterns": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/python-patterns/SKILL.md",
+      "computedHash": "16fa370e24821a211eff44d9deb129e05f4ccebfaa8c14277824fd4103635af5"
+    },
+    "research-ops": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/research-ops/SKILL.md",
+      "computedHash": "69eec4c9aeae2c21a9a4e26420c65a17c3feb8143c5a446b0210d7f80fdf4fbb"
+    },
+    "rust-patterns": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/rust-patterns/SKILL.md",
+      "computedHash": "99cc1d840bb3e5d911051b115e5da518f3f3ca74f3a8a3e89369c6da9298afa1"
+    },
+    "rust-testing": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/rust-testing/SKILL.md",
+      "computedHash": "8f6cab4bcbdc5bd8c19f179e893ca5d502604a03e4e443bd27ba7c3a88a93add"
+    },
+    "skill-improver": {
+      "source": "fjrevoredo/mini-diarium",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/skill-improver/SKILL.md",
+      "computedHash": "49c0ded1b5772d72c8621a716470eadbda1ad67b3f585482577c5b9a0c0fc4bf"
+    },
+    "solidjs": {
+      "source": "fjrevoredo/mini-diarium",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/solidjs/SKILL.md",
+      "computedHash": "6195dd1cb5df073c6c835e3db3f6828541bcee6753a3c996473d934b80f1ebfa"
+    },
+    "storybook-solidjs": {
+      "source": "bichikim/web",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/storybook-solidjs/SKILL.md",
+      "computedHash": "4a6c0bd86aa938d5af4b3f07301003f0cc4c22a6279a1a326707665562671b0c"
+    },
+    "tailwind": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/tailwind/SKILL.md",
+      "computedHash": "97bf0007f24e6275dcabc084c4d42f434ba48a84cec5a5b060036220239d6ddc"
+    },
+    "tailwind-design-system": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/tailwind-design-system/SKILL.md",
+      "computedHash": "8bf7b1946042609fb682e41d822f875208ac4d6383037c170675a8bbe52f9ba5"
+    },
+    "tailwind-patterns": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/tailwind-patterns/SKILL.md",
+      "computedHash": "54ea413749acbfadc152864d73e16e6cf5d13f8c88c7fbf8f84693988789c30a"
+    },
+    "three": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/three/SKILL.md",
+      "computedHash": "d40f783d8687f93b19657c193811c78304f84dd276ad344c38045e57b03de187"
+    },
+    "todo-manager": {
+      "source": "fjrevoredo/mini-diarium",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/todo-manager/SKILL.md",
+      "computedHash": "e8811b28df4b7a0a47beca7a60b15a639a69c62837ceb0b38d2b592b72751c9a"
+    },
+    "typegpu": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/typegpu/SKILL.md",
+      "computedHash": "768a9b983ac79fc283307cdd39f262ab4da5deeb3726ec65252fb7b4bc04f779"
+    },
+    "update-pr": {
+      "source": "bichikim/web",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/update-pr/SKILL.md",
+      "computedHash": "cb665b5289d0ef23c2780715270d6df32ad17128af97568e17728438602bca3b"
+    }
+  }
+}

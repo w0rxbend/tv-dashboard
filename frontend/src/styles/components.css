@@ -1,0 +1,370 @@
+/* ================================================================
+   M3 CARD
+   ================================================================ */
+
+.card {
+  background: var(--md-surface-container);
+  border-radius: var(--shape-lg);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.card-lg  { border-radius: var(--shape-xl); }
+.card-xl  { border-radius: var(--shape-2xl); }
+.card-low { background: var(--md-surface-container-low); }
+
+/* ================================================================
+   CHIPS / BUTTONS
+   ================================================================ */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--shape-pill);
+  background: var(--md-surface-container-high);
+  color: var(--md-on-surface);
+  font: 500 13px/1 var(--font-display);
+  letter-spacing: 0.02em;
+}
+.chip-outline {
+  background: transparent;
+  border: 1px solid var(--md-outline-variant);
+  color: var(--md-on-surface-variant);
+}
+.chip-good {
+  background: var(--md-good-container);
+  color: var(--md-on-good-container);
+}
+
+.icon-btn {
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--shape-pill);
+  background: var(--md-surface-container-high);
+  color: var(--md-on-surface);
+  border: none;
+  cursor: pointer;
+}
+.icon-btn-tonal {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+}
+
+/* ================================================================
+   MATERIAL SYMBOLS
+   ================================================================ */
+
+.ms {
+  font-family: "Material Symbols Rounded";
+  font-weight: 400;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ================================================================
+   TOP APP BAR
+   ================================================================ */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 100%;
+  background: var(--md-surface-container-low);
+  border-radius: var(--shape-pill);
+}
+.topbar-cluster { display: flex; align-items: center; gap: 18px; }
+
+.brand-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--shape-md);
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  display: grid;
+  place-items: center;
+  font: 600 18px/1 var(--font-display);
+}
+
+/* ================================================================
+   AQI HERO CARD
+   ================================================================ */
+
+.aqi-hero {
+  background: linear-gradient(135deg, var(--md-primary-container) 0%, #1A3060 100%);
+  color: var(--md-on-primary-container);
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 28px;
+  height: 100%;
+}
+.aqi-gauge-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.aqi-gauge-center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  pointer-events: none;
+}
+.aqi-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+}
+.aqi-metric-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.aqi-metric {
+  background: rgba(255,255,255,0.06);
+  border-radius: var(--shape-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.aqi-metric .lbl { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.75; }
+.aqi-metric .v   { font: 500 26px/1 var(--font-display); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.aqi-metric .u   { font-size: 12px; opacity: 0.7; margin-left: 4px; }
+
+/* ================================================================
+   WEATHER CARD
+   ================================================================ */
+
+.wx-card {
+  background: linear-gradient(140deg, var(--md-tertiary-container) 0%, #5C2A14 100%);
+  color: var(--md-on-tertiary-container);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.wx-now {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
+}
+.wx-forecast {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.10);
+}
+.wx-fcell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 4px;
+  border-radius: var(--shape-md);
+}
+.wx-fcell.today { background: rgba(255,255,255,0.10); }
+
+/* ================================================================
+   AGENDA CARD
+   ================================================================ */
+
+.agenda-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.agenda-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+}
+.agenda-row {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 12px;
+  align-items: center;
+  background: var(--md-surface-container-low);
+  border-radius: var(--shape-md);
+  padding: 12px 14px;
+  position: relative;
+}
+.agenda-row.active {
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+}
+.agenda-row .time  { font: 500 18px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.agenda-row .ampm  { font-size: 11px; opacity: 0.7; margin-top: 2px; }
+.agenda-row .title { font: 500 15px/1.2 var(--font-display); }
+.agenda-row .sub   { font: 400 12px/1.25 var(--font-body); opacity: 0.75; margin-top: 4px; }
+
+/* ================================================================
+   CHART CARD
+   ================================================================ */
+
+.chart-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.chart-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--md-outline-variant);
+}
+.chart-stat .lbl { font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--md-on-surface-variant); }
+.chart-stat .v   { font: 500 22px/1 var(--font-display); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; margin-top: 4px; }
+.chart-stat .u   { font-size: 11px; color: var(--md-on-surface-variant); margin-left: 4px; }
+
+/* Chart legend */
+.chart-legend {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.chart-legend-swatch {
+  width: 20px;
+  height: 3px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+/* ================================================================
+   INDOOR METRICS CARD
+   ================================================================ */
+
+.indoor-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+}
+.indoor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  flex: 1;
+}
+.indoor-cell {
+  background: var(--md-surface-container-low);
+  border-radius: var(--shape-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  overflow: hidden;
+}
+.indoor-cell .lbl { font-size: 10.5px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--md-on-surface-variant); }
+.indoor-cell .v   { font: 500 30px/1 var(--font-display); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; margin-top: 2px; }
+.indoor-cell .u   { font-size: 13px; color: var(--md-on-surface-variant); margin-left: 4px; }
+.indoor-cell-icon {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 56px !important;
+  opacity: 0.18;
+  pointer-events: none;
+  font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 48 !important;
+}
+
+/* ================================================================
+   BOTTOM STATUS STRIP
+   ================================================================ */
+
+.bottom-strip {
+  height: 100%;
+  display: grid;
+  grid-template-columns: 2fr 1.4fr 1fr 1fr 1fr;
+  gap: 16px;
+}
+.bs-cell {
+  background: var(--md-surface-container);
+  border-radius: var(--shape-lg);
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.bs-cell-icon {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 64px !important;
+  opacity: 0.14;
+  pointer-events: none;
+  font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 48 !important;
+}
+.bs-cell.primary  { background: var(--md-primary-container);  color: var(--md-on-primary-container); }
+.bs-cell.tertiary { background: var(--md-tertiary-container); color: var(--md-on-tertiary-container); }
+
+.bs-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--shape-md);
+  background: rgba(255,255,255,0.16);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.reminder-row {
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 4px 0;
+}
+.reminder-row + .reminder-row {
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 6px;
+  margin-top: 2px;
+}
+.reminder-row .dot      { width: 8px; height: 8px; border-radius: 50%; background: var(--md-tertiary); }
+.reminder-row .dot.done { background: var(--md-outline); }
+.reminder-row .text     { font: 500 13.5px/1.2 var(--font-display); }
+.reminder-row .when     { font: 500 10.5px/1 var(--font-display); letter-spacing: 0.08em; text-transform: uppercase; color: var(--md-on-surface-variant); }
+
+/* Decorative shape blobs inside hero cards */
+.shape-blob { position: absolute; pointer-events: none; opacity: 0.22; }

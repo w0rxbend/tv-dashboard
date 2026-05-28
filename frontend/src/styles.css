@@ -1,0 +1,515 @@
+/* ====================================================================
+   Material 3 Expressive — Dark theme tokens
+   Designed for 1920×1080 TV display
+   ==================================================================== */
+
+:root {
+  /* === Material 3 Dark surfaces (tonal palette: neutral + slight blue tint) === */
+  --md-surface-dim:               #131318;
+  --md-surface:                   #131318;
+  --md-surface-bright:            #39383F;
+
+  --md-surface-container-lowest:  #0E0D13;
+  --md-surface-container-low:     #1B1B21;
+  --md-surface-container:         #1F1F25;
+  --md-surface-container-high:    #2A2930;
+  --md-surface-container-highest: #35343B;
+
+  --md-on-surface:                #E6E0E9;
+  --md-on-surface-variant:        #C9C5D0;
+  --md-outline:                   #938F99;
+  --md-outline-variant:           #49454F;
+
+  /* === Primary (cool blue — for primary surfaces / actions / weather) === */
+  --md-primary:                   #B4C5FF;
+  --md-on-primary:                #002E69;
+  --md-primary-container:         #1F3C73;
+  --md-primary-container-2:       #284A85;
+  --md-on-primary-container:      #DAE2FF;
+
+  /* === Secondary (muted blue-grey) === */
+  --md-secondary:                 #BDC6DC;
+  --md-secondary-container:       #3D4759;
+  --md-on-secondary-container:    #DAE2F9;
+
+  /* === Tertiary (warm peach — for tertiary surfaces / accents) === */
+  --md-tertiary:                  #FFB59A;
+  --md-on-tertiary:               #561F08;
+  --md-tertiary-container:        #71341B;
+  --md-tertiary-container-2:      #834326;
+  --md-on-tertiary-container:     #FFDBCB;
+
+  /* === Semantic tonal pairs for AQI / status (M3 tonal containers) === */
+  --md-good:                      #82DBA6;
+  --md-good-container:            #1B5235;
+  --md-on-good-container:         #A8F2C7;
+
+  --md-warn:                      #FFD68A;
+  --md-warn-container:            #5C4218;
+  --md-on-warn-container:         #FFE6B5;
+
+  --md-bad:                       #FFB4AB;
+  --md-bad-container:             #93000A;
+  --md-on-bad-container:          #FFDAD6;
+
+  --md-violet:                    #D0BCFF;
+  --md-violet-container:          #4F378B;
+  --md-on-violet-container:       #EADDFF;
+
+  /* === Shape (M3 Expressive uses LARGE radii) === */
+  --shape-xs:    12px;
+  --shape-sm:    16px;
+  --shape-md:    20px;
+  --shape-lg:    28px;
+  --shape-xl:    36px;
+  --shape-2xl:   44px;
+  --shape-pill:  9999px;
+
+  /* === Type === */
+  --font-display: "Roboto Flex", "Google Sans", system-ui, sans-serif;
+  --font-body:    "Roboto Flex", system-ui, sans-serif;
+  --font-mono:    "Roboto Mono", ui-monospace, monospace;
+
+  /* === Motion === */
+  --ease-standard:  cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.3, 0, 0, 1);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0;
+  width: 100%; height: 100%;
+  background: #0A0910;
+  color: var(--md-on-surface);
+  font-family: var(--font-body);
+  font-variation-settings: "opsz" 14, "wdth" 100;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root { width: 100%; height: 100%; }
+
+/* === Stage scaling so the 1920×1080 design fills any viewport === */
+.stage-wrap {
+  position: fixed; inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(1200px 800px at 12% 8%, rgba(180, 197, 255, 0.10), transparent 60%),
+    radial-gradient(900px 700px at 92% 92%, rgba(255, 181, 154, 0.08), transparent 60%),
+    radial-gradient(700px 700px at 50% 110%, rgba(208, 188, 255, 0.06), transparent 60%),
+    linear-gradient(180deg, #0F0E15 0%, #0A0910 100%);
+}
+.stage {
+  width: 1920px; height: 1080px;
+  position: absolute; top: 0; left: 0;
+  transform-origin: top left;
+  background: transparent;
+  overflow: hidden;
+}
+
+/* Drifting M3 dynamic-color blobs */
+.bg-blob {
+  position: absolute; border-radius: 50%;
+  filter: blur(120px); opacity: 0.55;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  animation: drift 22s ease-in-out infinite alternate;
+}
+@keyframes drift {
+  0%   { transform: translate3d(0,0,0) scale(1); }
+  100% { transform: translate3d(60px,-40px,0) scale(1.12); }
+}
+
+/* ====================================================================
+   LAYOUT GRID
+   ==================================================================== */
+
+.dash {
+  position: absolute; inset: 0;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: 92px 388px 280px 232px;
+  gap: 18px;
+  padding: 24px 28px;
+}
+
+.area-topbar { grid-column: 1 / -1; grid-row: 1; }
+.area-aqi    { grid-column: 1 / 6;  grid-row: 2; }
+.area-wx     { grid-column: 6 / 10; grid-row: 2; }
+.area-agenda { grid-column: 10 / 13; grid-row: 2 / 4; }
+.area-chart  { grid-column: 1 / 7;  grid-row: 3; }
+.area-indoor { grid-column: 7 / 10; grid-row: 3; }
+.area-bottom { grid-column: 1 / -1; grid-row: 4; }
+
+/* ====================================================================
+   M3 CARD
+   ==================================================================== */
+
+.card {
+  background: var(--md-surface-container);
+  border-radius: var(--shape-lg);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.card-lg     { border-radius: var(--shape-xl); }
+.card-xl     { border-radius: var(--shape-2xl); }
+.card-low    { background: var(--md-surface-container-low); }
+.card-high   { background: var(--md-surface-container-high); }
+.card-primary   { background: var(--md-primary-container);   color: var(--md-on-primary-container); }
+.card-tertiary  { background: var(--md-tertiary-container);  color: var(--md-on-tertiary-container); }
+.card-good      { background: var(--md-good-container);      color: var(--md-on-good-container); }
+.card-warn      { background: var(--md-warn-container);      color: var(--md-on-warn-container); }
+.card-violet    { background: var(--md-violet-container);    color: var(--md-on-violet-container); }
+
+/* ====================================================================
+   M3 TYPOGRAPHY
+   ==================================================================== */
+
+.t-display-lg { font-family: var(--font-display); font-weight: 400; font-size: 128px; line-height: 0.92; letter-spacing: -0.04em; font-variation-settings: "wdth" 95, "opsz" 144; }
+.t-display-md { font-family: var(--font-display); font-weight: 400; font-size: 88px;  line-height: 0.94; letter-spacing: -0.03em; font-variation-settings: "wdth" 95, "opsz" 144; }
+.t-display-sm { font-family: var(--font-display); font-weight: 400; font-size: 60px;  line-height: 1.0;  letter-spacing: -0.02em; font-variation-settings: "wdth" 95, "opsz" 144; }
+.t-headline-lg { font-family: var(--font-display); font-weight: 500; font-size: 36px; line-height: 1.1; letter-spacing: -0.01em; }
+.t-headline-md { font-family: var(--font-display); font-weight: 500; font-size: 28px; line-height: 1.15; }
+.t-title-lg   { font-family: var(--font-display); font-weight: 500; font-size: 22px; line-height: 1.2; }
+.t-title-md   { font-family: var(--font-display); font-weight: 500; font-size: 17px; line-height: 1.25; }
+.t-body-lg    { font-family: var(--font-body); font-weight: 400; font-size: 17px; line-height: 1.45; }
+.t-body-md    { font-family: var(--font-body); font-weight: 400; font-size: 15px; line-height: 1.45; }
+.t-body-sm    { font-family: var(--font-body); font-weight: 400; font-size: 13px; line-height: 1.4; }
+.t-label-lg   { font-family: var(--font-display); font-weight: 500; font-size: 14px; line-height: 1.2; letter-spacing: 0.04em; }
+.t-label-md   { font-family: var(--font-display); font-weight: 500; font-size: 12px; line-height: 1.2; letter-spacing: 0.06em; text-transform: uppercase; }
+.t-num        { font-variant-numeric: tabular-nums; }
+.t-mono       { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+.muted   { color: var(--md-on-surface-variant); }
+.muted-2 { color: var(--md-outline); }
+
+/* ====================================================================
+   M3 CHIPS / PILLS / BUTTONS
+   ==================================================================== */
+
+.chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--shape-pill);
+  background: var(--md-surface-container-high);
+  color: var(--md-on-surface);
+  font: 500 13px/1 var(--font-display);
+  letter-spacing: 0.02em;
+}
+.chip-outline {
+  background: transparent;
+  border: 1px solid var(--md-outline-variant);
+  color: var(--md-on-surface-variant);
+}
+.chip-primary {
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+}
+.chip-tertiary {
+  background: var(--md-tertiary-container);
+  color: var(--md-on-tertiary-container);
+}
+.chip-good {
+  background: var(--md-good-container);
+  color: var(--md-on-good-container);
+}
+
+.icon-btn {
+  width: 48px; height: 48px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--shape-pill);
+  background: var(--md-surface-container-high);
+  color: var(--md-on-surface);
+  border: none;
+  cursor: pointer;
+}
+.icon-btn-tonal { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
+
+/* ====================================================================
+   Material Symbols
+   ==================================================================== */
+
+.ms {
+  font-family: "Material Symbols Rounded";
+  font-weight: 400;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.ms-fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+.ms-lg   { font-size: 32px; font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 40; }
+.ms-xl   { font-size: 56px; font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48; }
+.ms-2xl  { font-size: 96px; font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48; }
+
+/* ====================================================================
+   TOP APP BAR
+   ==================================================================== */
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px;
+  height: 100%;
+  background: var(--md-surface-container-low);
+  border-radius: var(--shape-pill);
+}
+.topbar-cluster { display: flex; align-items: center; gap: 18px; }
+
+.brand-mark {
+  width: 44px; height: 44px;
+  border-radius: var(--shape-md);
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  display: grid; place-items: center;
+  font: 600 18px/1 var(--font-display);
+}
+
+/* ====================================================================
+   AQI HERO CARD
+   ==================================================================== */
+
+.aqi-hero {
+  background: linear-gradient(135deg, var(--md-primary-container) 0%, #1A3060 100%);
+  color: var(--md-on-primary-container);
+  position: relative;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 28px;
+  height: 100%;
+}
+.aqi-gauge-wrap {
+  position: relative;
+  display: grid; place-items: center;
+}
+.aqi-gauge-center {
+  position: absolute; inset: 0;
+  display: grid; place-items: center; text-align: center;
+  pointer-events: none;
+}
+.aqi-side {
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+}
+.aqi-metric-row {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.aqi-metric {
+  background: rgba(255,255,255,0.06);
+  border-radius: var(--shape-md);
+  padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.aqi-metric .lbl { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.75; }
+.aqi-metric .v   { font: 500 26px/1 var(--font-display); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.aqi-metric .u   { font-size: 12px; opacity: 0.7; margin-left: 4px; }
+
+/* ====================================================================
+   WEATHER CARD
+   ==================================================================== */
+
+.wx-card {
+  background: linear-gradient(140deg, var(--md-tertiary-container) 0%, #5C2A14 100%);
+  color: var(--md-on-tertiary-container);
+  height: 100%;
+  display: flex; flex-direction: column;
+  gap: 18px;
+}
+.wx-now {
+  display: grid; grid-template-columns: 1fr auto; gap: 16px;
+  align-items: center;
+}
+.wx-icon-big { font-size: 120px; line-height: 0.9; color: #FFC857; }
+.wx-forecast {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.10);
+}
+.wx-fcell {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 6px 4px;
+  border-radius: var(--shape-md);
+}
+.wx-fcell.today {
+  background: rgba(255,255,255,0.10);
+}
+
+/* ====================================================================
+   AGENDA CARD
+   ==================================================================== */
+
+.agenda-card {
+  height: 100%;
+  display: flex; flex-direction: column;
+  gap: 14px;
+}
+.agenda-list {
+  display: flex; flex-direction: column;
+  gap: 10px;
+  flex: 1; min-height: 0;
+}
+.agenda-row {
+  display: grid; grid-template-columns: 56px 1fr;
+  gap: 12px;
+  align-items: center;
+  background: var(--md-surface-container-low);
+  border-radius: var(--shape-md);
+  padding: 12px 14px;
+  position: relative;
+}
+.agenda-row.active {
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+}
+.agenda-row .time { font: 500 18px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.agenda-row .ampm { font-size: 11px; opacity: 0.7; margin-top: 2px; }
+.agenda-row .title { font: 500 15px/1.2 var(--font-display); }
+.agenda-row .sub { font: 400 12px/1.25 var(--font-body); opacity: 0.75; margin-top: 4px; }
+
+/* ====================================================================
+   CHART CARD
+   ==================================================================== */
+
+.chart-card {
+  height: 100%;
+  display: flex; flex-direction: column;
+}
+.chart-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.chart-tabs { display: flex; gap: 4px; padding: 4px; background: var(--md-surface-container-low); border-radius: var(--shape-pill); }
+.chart-tab {
+  padding: 7px 16px; border-radius: var(--shape-pill);
+  font: 500 12px/1 var(--font-display); letter-spacing: 0.04em;
+  color: var(--md-on-surface-variant);
+  background: none; border: none; cursor: pointer;
+}
+.chart-tab.on { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
+.chart-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--md-outline-variant);
+}
+.chart-stat .lbl { font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--md-on-surface-variant); }
+.chart-stat .v   { font: 500 22px/1 var(--font-display); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; margin-top: 4px; }
+.chart-stat .u   { font-size: 11px; color: var(--md-on-surface-variant); margin-left: 4px; }
+.chart-stat .delta { font-size: 11px; margin-left: 4px; }
+.chart-stat .delta.up   { color: var(--md-bad); }
+.chart-stat .delta.down { color: var(--md-good); }
+
+/* ====================================================================
+   INDOOR METRICS CARD
+   ==================================================================== */
+
+.indoor-card { display: flex; flex-direction: column; gap: 12px; height: 100%; }
+.indoor-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  flex: 1;
+}
+.indoor-cell {
+  background: var(--md-surface-container-low);
+  border-radius: var(--shape-md);
+  padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 4px;
+  position: relative;
+}
+.indoor-cell .lbl { font-size: 10.5px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--md-on-surface-variant); display: flex; align-items: center; gap: 6px; }
+.indoor-cell .v   { font: 500 30px/1 var(--font-display); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; margin-top: 2px; }
+.indoor-cell .u   { font-size: 13px; color: var(--md-on-surface-variant); margin-left: 4px; }
+
+/* ====================================================================
+   BOTTOM STATUS STRIP
+   ==================================================================== */
+
+.bottom-strip {
+  height: 100%;
+  display: grid; grid-template-columns: 2fr 1.4fr 1fr 1fr 1fr; gap: 16px;
+}
+.bs-cell {
+  background: var(--md-surface-container);
+  border-radius: var(--shape-lg);
+  padding: 18px 22px;
+  display: flex; flex-direction: column; gap: 6px;
+  justify-content: center;
+}
+.bs-cell.primary  { background: var(--md-primary-container); color: var(--md-on-primary-container); }
+.bs-cell.tertiary { background: var(--md-tertiary-container); color: var(--md-on-tertiary-container); }
+
+.reminder-row {
+  display: grid; grid-template-columns: 14px 1fr auto;
+  gap: 10px; align-items: center;
+  padding: 4px 0;
+}
+.reminder-row + .reminder-row { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 6px; margin-top: 2px; }
+.reminder-row .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--md-tertiary); }
+.reminder-row .dot.done { background: var(--md-outline); }
+.reminder-row .text { font: 500 13.5px/1.2 var(--font-display); }
+.reminder-row .when { font: 500 10.5px/1 var(--font-display); letter-spacing: 0.08em; text-transform: uppercase; color: var(--md-on-surface-variant); }
+
+/* ====================================================================
+   PROGRESS / GAUGE
+   ==================================================================== */
+
+.linear-track {
+  height: 6px; border-radius: var(--shape-pill);
+  background: rgba(255,255,255,0.10); overflow: hidden;
+  position: relative;
+}
+.linear-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  background: currentColor;
+  border-radius: var(--shape-pill);
+  transition: width 1.2s var(--ease-emphasized);
+}
+
+/* Sparkline path animation */
+.spark-path { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: draw 1.6s var(--ease-standard) forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+/* Pulsing live dot */
+.live-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--md-good);
+  box-shadow: 0 0 0 0 rgba(130,219,166,0.6);
+  animation: pulseDot 1.8s infinite;
+}
+@keyframes pulseDot {
+  0%   { box-shadow: 0 0 0 0 rgba(130,219,166,0.55); }
+  70%  { box-shadow: 0 0 0 12px rgba(130,219,166,0); }
+  100% { box-shadow: 0 0 0 0 rgba(130,219,166,0); }
+}
+
+/* Animated entrance: stagger reveal */
+.card { animation: rise 700ms var(--ease-emphasized) both; }
+.card:nth-child(1) { animation-delay: 40ms; }
+.card:nth-child(2) { animation-delay: 90ms; }
+.card:nth-child(3) { animation-delay: 140ms; }
+.card:nth-child(4) { animation-delay: 190ms; }
+.card:nth-child(5) { animation-delay: 240ms; }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Decorative shape behind hero numbers */
+.shape-blob {
+  position: absolute; pointer-events: none;
+  opacity: 0.22;
+}

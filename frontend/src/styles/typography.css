@@ -1,0 +1,19 @@
+/* Material 3 type scale */
+
+.t-display-lg  { font-family: var(--font-display); font-weight: 400; font-size: 128px; line-height: 0.92; letter-spacing: -0.04em; font-variation-settings: "wdth" 95, "opsz" 144; }
+.t-display-md  { font-family: var(--font-display); font-weight: 400; font-size: 88px;  line-height: 0.94; letter-spacing: -0.03em; font-variation-settings: "wdth" 95, "opsz" 144; }
+.t-display-sm  { font-family: var(--font-display); font-weight: 400; font-size: 60px;  line-height: 1.0;  letter-spacing: -0.02em; font-variation-settings: "wdth" 95, "opsz" 144; }
+.t-headline-lg { font-family: var(--font-display); font-weight: 500; font-size: 36px;  line-height: 1.1;  letter-spacing: -0.01em; }
+.t-headline-md { font-family: var(--font-display); font-weight: 500; font-size: 28px;  line-height: 1.15; }
+.t-title-lg    { font-family: var(--font-display); font-weight: 500; font-size: 22px;  line-height: 1.2; }
+.t-title-md    { font-family: var(--font-display); font-weight: 500; font-size: 17px;  line-height: 1.25; }
+.t-body-lg     { font-family: var(--font-body);    font-weight: 400; font-size: 17px;  line-height: 1.45; }
+.t-body-md     { font-family: var(--font-body);    font-weight: 400; font-size: 15px;  line-height: 1.45; }
+.t-body-sm     { font-family: var(--font-body);    font-weight: 400; font-size: 13px;  line-height: 1.4; }
+.t-label-lg    { font-family: var(--font-display); font-weight: 500; font-size: 14px;  line-height: 1.2; letter-spacing: 0.04em; }
+.t-label-md    { font-family: var(--font-display); font-weight: 500; font-size: 12px;  line-height: 1.2; letter-spacing: 0.06em; text-transform: uppercase; }
+.t-num         { font-variant-numeric: tabular-nums; }
+.t-mono        { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+.muted   { color: var(--md-on-surface-variant); }
+.muted-2 { color: var(--md-outline); }

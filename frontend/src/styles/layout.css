@@ -1,0 +1,53 @@
+/* Stage: fills the full viewport via independent X/Y scaling from top-left */
+
+.stage-wrap {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(1200px 800px at 12% 8%,  rgba(180, 197, 255, 0.10), transparent 60%),
+    radial-gradient(900px  700px at 92% 92%, rgba(255, 181, 154, 0.08), transparent 60%),
+    radial-gradient(700px  700px at 50% 110%, rgba(208, 188, 255, 0.06), transparent 60%),
+    linear-gradient(180deg, #0F0E15 0%, #0A0910 100%);
+}
+
+.stage {
+  width: 1920px;
+  height: 1080px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+  background: transparent;
+  overflow: hidden;
+}
+
+/* Drifting ambient blobs */
+.bg-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.55;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  animation: drift 22s ease-in-out infinite alternate;
+}
+
+/* 12-column dashboard grid */
+.dash {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: 92px 388px 280px 232px;
+  gap: 18px;
+  padding: 24px 28px;
+}
+
+.area-topbar { grid-column: 1 / -1;  grid-row: 1; }
+.area-aqi    { grid-column: 1 / 6;   grid-row: 2; }
+.area-wx     { grid-column: 6 / 10;  grid-row: 2; }
+.area-agenda { grid-column: 10 / 13; grid-row: 2 / 4; }
+.area-chart  { grid-column: 1 / 7;   grid-row: 3; }
+.area-indoor { grid-column: 7 / 10;  grid-row: 3; }
+.area-bottom { grid-column: 1 / -1;  grid-row: 4; }

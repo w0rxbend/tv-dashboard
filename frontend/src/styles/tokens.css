@@ -1,0 +1,68 @@
+/* Material 3 Expressive — Dark theme design tokens (1920×1080 TV display) */
+
+:root {
+  /* Surfaces */
+  --md-surface-dim:               #131318;
+  --md-surface:                   #131318;
+  --md-surface-bright:            #39383F;
+  --md-surface-container-lowest:  #0E0D13;
+  --md-surface-container-low:     #1B1B21;
+  --md-surface-container:         #1F1F25;
+  --md-surface-container-high:    #2A2930;
+  --md-surface-container-highest: #35343B;
+  --md-on-surface:                #E6E0E9;
+  --md-on-surface-variant:        #C9C5D0;
+  --md-outline:                   #938F99;
+  --md-outline-variant:           #49454F;
+
+  /* Primary — cool blue */
+  --md-primary:                   #B4C5FF;
+  --md-on-primary:                #002E69;
+  --md-primary-container:         #1F3C73;
+  --md-primary-container-2:       #284A85;
+  --md-on-primary-container:      #DAE2FF;
+
+  /* Secondary — muted blue-grey */
+  --md-secondary:                 #BDC6DC;
+  --md-secondary-container:       #3D4759;
+  --md-on-secondary-container:    #DAE2F9;
+
+  /* Tertiary — warm peach */
+  --md-tertiary:                  #FFB59A;
+  --md-on-tertiary:               #561F08;
+  --md-tertiary-container:        #71341B;
+  --md-tertiary-container-2:      #834326;
+  --md-on-tertiary-container:     #FFDBCB;
+
+  /* Semantic — AQI / status */
+  --md-good:                      #82DBA6;
+  --md-good-container:            #1B5235;
+  --md-on-good-container:         #A8F2C7;
+  --md-warn:                      #FFD68A;
+  --md-warn-container:            #5C4218;
+  --md-on-warn-container:         #FFE6B5;
+  --md-bad:                       #FFB4AB;
+  --md-bad-container:             #93000A;
+  --md-on-bad-container:          #FFDAD6;
+  --md-violet:                    #D0BCFF;
+  --md-violet-container:          #4F378B;
+  --md-on-violet-container:       #EADDFF;
+
+  /* Shape */
+  --shape-xs:   12px;
+  --shape-sm:   16px;
+  --shape-md:   20px;
+  --shape-lg:   28px;
+  --shape-xl:   36px;
+  --shape-2xl:  44px;
+  --shape-pill: 9999px;
+
+  /* Typography */
+  --font-display: "Roboto Flex", "Google Sans", system-ui, sans-serif;
+  --font-body:    "Roboto Flex", system-ui, sans-serif;
+  --font-mono:    "Roboto Mono", ui-monospace, monospace;
+
+  /* Motion */
+  --ease-standard:  cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.3, 0, 0, 1);
+}
