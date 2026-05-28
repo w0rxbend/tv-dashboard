@@ -1,12 +1,19 @@
 import { createRoute, z } from '@hono/zod-openapi';
-import type { OpenAPIHono } from '@hono/zod-openapi';
-import { jitter } from '../lib/mock.js';
+import type { OpenAPIHono, RouteHandler } from '@hono/zod-openapi';
+import { config } from '../config.js';
+import {
+  fetchWeatherFromAPI,
+  wmoToCondition,
+  degreesToCardinal,
+  uvMeta,
+} from '../services/open-meteo.js';
+import { upstreamError } from '../lib/upstream-error.js';
 
 // ─── Schemas ─────────────────────────────────────────────────────────────────
 
 const LocationSchema = z.object({
-  city:   z.string().openapi({ example: 'Stockholm' }),
-  region: z.string().openapi({ example: 'Södermalm · SE' }),
+  city:   z.string().openapi({ example: 'Kyiv' }),
+  region: z.string().openapi({ example: 'Kyiv · UA' }),
 }).openapi('Location');
 
 const CurrentWeatherSchema = z.object({
@@ -40,56 +47,18 @@ const WeatherResponseSchema = z.object({
   }),
 }).openapi('WeatherResponse');
 
-// ─── Mock data provider ──────────────────────────────────────────────────────
-
-function uvMeta(index: number): { uv_label: string; uv_advice: string } {
-  if (index <= 2)  return { uv_label: 'Low',       uv_advice: 'No protection needed' };
-  if (index <= 5)  return { uv_label: 'Moderate',  uv_advice: 'Wear sunscreen' };
-  if (index <= 7)  return { uv_label: 'High',      uv_advice: 'Seek shade midday' };
-  if (index <= 10) return { uv_label: 'Very High', uv_advice: 'Cover up outdoors' };
-  return                  { uv_label: 'Extreme',   uv_advice: 'Avoid sun exposure' };
-}
-
-function getWeatherMock() {
-  const temp     = jitter(19.4, 0.8);
-  const uvIndex  = 4;
-  return {
-    data: {
-      current: {
-        temperature:     temp,
-        feels_like:      +(temp - 1.2).toFixed(2),
-        condition:       'partly_cloudy',
-        condition_label: 'Partly cloudy',
-        icon:            'partly_cloudy_day',
-        weather_icon:    'partly_cloudy',
-        wind_speed:      jitter(8, 1.5),
-        wind_direction:  'NE',
-        humidity:        jitter(54, 3),
-        uv_index:        uvIndex,
-        ...uvMeta(uvIndex),
-        location: { city: 'Stockholm', region: 'Södermalm · SE' },
-      },
-      forecast: [
-        { day: 'TUE', icon: 'wb_sunny',          weather_icon: 'clear',          high: 22, low: 14 },
-        { day: 'WED', icon: 'partly_cloudy_day', weather_icon: 'partly_cloudy',  high: 24, low: 15 },
-        { day: 'THU', icon: 'partly_cloudy_day', weather_icon: 'partly_cloudy',  high: 23, low: 14 },
-        { day: 'FRI', icon: 'rainy',             weather_icon: 'rainy',          high: 19, low: 13 },
-        { day: 'SAT', icon: 'thunderstorm',      weather_icon: 'thunderstorm',   high: 18, low: 12 },
-        { day: 'SUN', icon: 'cloud',             weather_icon: 'cloudy',         high: 20, low: 13 },
-        { day: 'MON', icon: 'wb_sunny',          weather_icon: 'clear',          high: 23, low: 15 },
-      ],
-    },
-  };
-}
-
-// ─── Routes ──────────────────────────────────────────────────────────────────
+// ─── Route definition ─────────────────────────────────────────────────────────
 
 const getWeatherRoute = createRoute({
   method:      'get',
   path:        '/v1/weather',
   tags:        ['Weather'],
   summary:     'Get current weather and forecast',
-  description: 'Returns current outdoor conditions and a 7-day forecast for the configured location.',
+  description: [
+    'Returns current outdoor conditions and a 7-day forecast for the configured location.',
+    '',
+    '**503** is returned when the upstream Open-Meteo API is unreachable.',
+  ].join('\n'),
   responses: {
     200: {
       content:     { 'application/json': { schema: WeatherResponseSchema } },
@@ -98,6 +67,61 @@ const getWeatherRoute = createRoute({
   },
 });
 
+// ─── Handler ──────────────────────────────────────────────────────────────────
+
+const DAY_LABELS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'] as const;
+
+const handleGetWeather: RouteHandler<typeof getWeatherRoute> = async (c) => {
+  const { latitude, longitude, city, region } = config.location;
+
+  let raw;
+  try {
+    raw = await fetchWeatherFromAPI(latitude, longitude);
+  } catch (err) {
+    return upstreamError(err instanceof Error ? err.message : 'Unknown upstream error');
+  }
+
+  const cur   = raw.current;
+  const daily = raw.daily;
+
+  const uvIndex = Math.round(cur.uv_index);
+  const cond    = wmoToCondition(cur.weather_code);
+
+  const forecast = daily.time.map((dateStr, i) => {
+    const dayOfWeek = new Date(dateStr + 'T12:00:00').getDay();
+    const fc = wmoToCondition(daily.weather_code[i]);
+    return {
+      day:          DAY_LABELS[dayOfWeek],
+      icon:         fc.icon,
+      weather_icon: fc.weather_icon,
+      high:         Math.round(daily.temperature_2m_max[i]),
+      low:          Math.round(daily.temperature_2m_min[i]),
+    };
+  });
+
+  return c.json({
+    data: {
+      current: {
+        temperature:     cur.temperature_2m,
+        feels_like:      cur.apparent_temperature,
+        condition:       cond.condition,
+        condition_label: cond.condition_label,
+        icon:            cond.icon,
+        weather_icon:    cond.weather_icon,
+        wind_speed:      cur.wind_speed_10m,
+        wind_direction:  degreesToCardinal(cur.wind_direction_10m),
+        humidity:        cur.relative_humidity_2m,
+        uv_index:        uvIndex,
+        ...uvMeta(uvIndex),
+        location: { city, region },
+      },
+      forecast,
+    },
+  });
+};
+
+// ─── Registration ─────────────────────────────────────────────────────────────
+
 export function registerWeatherRoutes(app: OpenAPIHono) {
-  app.openapi(getWeatherRoute, (c) => c.json(getWeatherMock()));
+  app.openapi(getWeatherRoute, handleGetWeather);
 }

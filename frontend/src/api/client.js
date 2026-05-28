@@ -31,12 +31,13 @@ export class ApiError extends Error {
  */
 export async function apiGet(path, opts = {}) {
   const controller = new AbortController();
-  const timeoutId  = setTimeout(() => controller.abort(), opts.timeout ?? DEFAULT_TIMEOUT_MS);
+  let timedOut = false;
+  const timeoutId = setTimeout(() => { timedOut = true; controller.abort(); }, opts.timeout ?? DEFAULT_TIMEOUT_MS);
 
-  // Allow callers to supply their own abort signal alongside the timeout
-  if (opts.signal) {
-    opts.signal.addEventListener('abort', () => controller.abort());
-  }
+  // Allow callers to supply their own abort signal alongside the timeout.
+  // The listener is stored so it can be removed in the finally block (no leak).
+  const onExternalAbort = opts.signal ? () => controller.abort() : null;
+  if (onExternalAbort) opts.signal.addEventListener('abort', onExternalAbort);
 
   try {
     const res = await fetch(`${BASE}${path}`, {
@@ -54,11 +55,20 @@ export async function apiGet(path, opts = {}) {
       throw new ApiError(res.status, err.code ?? 'http_error', err.message ?? `HTTP ${res.status}`, err.details);
     }
 
+    if (body.data === undefined) {
+      throw new ApiError(0, 'bad_response', 'Response missing data envelope');
+    }
+
     return body.data;
   } catch (err) {
     clearTimeout(timeoutId);
     if (err instanceof ApiError) throw err;
-    if (err?.name === 'AbortError') throw new ApiError(0, 'timeout', 'Request timed out');
+    if (err?.name === 'AbortError') {
+      if (timedOut) throw new ApiError(0, 'timeout', 'Request timed out');
+      throw new ApiError(0, 'cancelled', 'Request cancelled');
+    }
     throw new ApiError(0, 'network_error', err?.message ?? 'Network error');
+  } finally {
+    if (onExternalAbort) opts.signal.removeEventListener('abort', onExternalAbort);
   }
 }

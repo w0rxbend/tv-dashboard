@@ -1,5 +1,5 @@
 import { createMemo } from 'solid-js';
-import { MS, Sparkline, RadialGauge } from '../primitives';
+import { MS, Sparkline, RadialGauge, CardError } from '../primitives';
 import { createPolling } from '../data/createPolling';
 import { fetchAirQuality, POLL } from '../api';
 
@@ -13,6 +13,7 @@ export default function AQICard() {
 
   return (
     <article class="card card-xl aqi-hero" aria-label="Air Quality Index">
+      <CardError error={aq.error}/>
       {/* Decorative M3 shape blob */}
       <svg class="shape-blob" style={{ right: '-60px', top: '-60px', width: '280px', height: '280px' }} viewBox="0 0 200 200" aria-hidden="true">
         <path d="M 100 0 C 160 0 200 40 200 100 C 200 160 160 200 100 200 C 40 200 0 160 0 100 C 0 40 40 0 100 0 Z" fill={cat().color} opacity="0.35"/>

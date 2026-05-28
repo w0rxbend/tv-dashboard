@@ -1,5 +1,7 @@
 import { createRoute, z } from '@hono/zod-openapi';
 import type { OpenAPIHono } from '@hono/zod-openapi';
+import { config } from '../config.js';
+import { localNow } from '../lib/time.js';
 
 // ─── Schemas ─────────────────────────────────────────────────────────────────
 
@@ -30,15 +32,14 @@ const EventsQuerySchema = z.object({
 // ─── Mock data provider ──────────────────────────────────────────────────────
 
 function getEventsMock(date: string) {
-  const now = new Date();
-  const h = now.getHours() * 60 + now.getMinutes();
+  const { totalMinutes: h } = localNow(config.location.timezone);
 
   const events = [
     { id: 'evt-001', time: '09:30', ampm: 'AM', title: 'Design Review · Aurora',   sub: 'Studio · with Mira & Theo',    active: h >= 570  && h < 630  },
     { id: 'evt-002', time: '11:00', ampm: 'AM', title: 'AirGradient firmware OTA', sub: 'Pi mesh · 4 sensors queued',   active: h >= 660  && h < 720  },
     { id: 'evt-003', time: '01:15', ampm: 'PM', title: 'Lunch · Linnea',           sub: 'Spritzhaus · table for two',   active: h >= 795  && h < 855  },
     { id: 'evt-004', time: '03:00', ampm: 'PM', title: 'Pickup · Noa',             sub: 'Vasaparken · soccer practice', active: h >= 900  && h < 960  },
-    { id: 'evt-005', time: '07:30', ampm: 'PM', title: 'Movie night',              sub: 'Living room · queue ready',    active: h >= 1170 && h < 1290 },
+    { id: 'evt-005', time: '07:30', ampm: 'PM', title: 'Movie night',              sub: 'Living room · queue ready',    active: h >= 1170 && h < 1290 }, // 2-hour window (19:30–21:30)
   ];
 
   return { data: { date, events } };
@@ -64,7 +65,7 @@ const getEventsRoute = createRoute({
 export function registerEventsRoutes(app: OpenAPIHono) {
   app.openapi(getEventsRoute, (c) => {
     const { date } = c.req.valid('query');
-    const target = date ?? new Date().toISOString().slice(0, 10);
+    const target = date ?? localNow(config.location.timezone).date;
     return c.json(getEventsMock(target));
   });
 }

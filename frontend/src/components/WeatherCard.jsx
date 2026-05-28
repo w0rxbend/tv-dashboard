@@ -1,5 +1,6 @@
 import { For } from 'solid-js';
 import WeatherIcon from './WeatherIcon';
+import { CardError } from '../primitives';
 import { createPolling } from '../data/createPolling';
 import { fetchWeather, POLL } from '../api';
 
@@ -11,6 +12,7 @@ export default function WeatherCard() {
 
   return (
     <article class="card card-xl wx-card" aria-label="Current weather">
+      <CardError error={weather.error}/>
       {/* Decorative blob */}
       <svg class="shape-blob" style={{ left: '-40px', bottom: '-80px', width: '260px', height: '260px' }} viewBox="0 0 200 200" aria-hidden="true">
         <path d="M 100 0 Q 200 50 180 130 Q 140 220 60 180 Q -20 130 20 50 Q 50 -30 100 0 Z" fill="#FFC857" opacity="0.4"/>

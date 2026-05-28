@@ -1,16 +1,22 @@
-import { MS, Sparkline, LinearTrack } from '../primitives';
+import { MS, Sparkline, LinearTrack, CardError } from '../primitives';
 import { createPolling } from '../data/createPolling';
 import { fetchIndoorClimate, POLL } from '../api';
+
+const TEMP_MIN_C = 18;
+const TEMP_MAX_C = 26;
 
 export default function IndoorCard() {
   const climate = createPolling(fetchIndoorClimate, { interval: POLL.INDOOR_CLIMATE });
 
   const data    = () => climate.latest;
-  const tempPct = () => data() ? ((data().temperature - 18) / 8) * 100 : 0;
+  const tempPct = () => data()
+    ? Math.max(0, Math.min(100, ((data().temperature - TEMP_MIN_C) / (TEMP_MAX_C - TEMP_MIN_C)) * 100))
+    : 0;
   const sparks  = () => data()?.sparklines;
 
   return (
     <article class="card card-lg indoor-card" aria-label="Indoor climate">
+      <CardError error={climate.error}/>
       <div>
         <div class="t-label-md muted">
           {(data()?.sensor_location ?? 'LIVING ROOM').toUpperCase()} · SENSOR ARRAY

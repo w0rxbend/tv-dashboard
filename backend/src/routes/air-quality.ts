@@ -1,6 +1,9 @@
 import { createRoute, z } from '@hono/zod-openapi';
-import type { OpenAPIHono } from '@hono/zod-openapi';
-import { jitter, makeSeries } from '../lib/mock.js';
+import type { OpenAPIHono, RouteHandler } from '@hono/zod-openapi';
+import { makeSeries } from '../lib/mock.js';
+import { config } from '../config.js';
+import { fetchAirQualityFromAPI } from '../services/open-meteo.js';
+import { upstreamError } from '../lib/upstream-error.js';
 
 // ─── Schemas ─────────────────────────────────────────────────────────────────
 
@@ -20,9 +23,9 @@ const AirQualitySchema = z.object({
   category: AqiCategorySchema,
   pm25:     z.number().openapi({ example: 8.2, description: 'PM2.5 µg/m³' }),
   pm10:     z.number().openapi({ example: 14.6, description: 'PM10 µg/m³' }),
-  co2:      z.number().openapi({ example: 612, description: 'CO₂ ppm' }),
-  voc:      z.number().openapi({ example: 0.42, description: 'tVOC mg/m³' }),
-  message:  z.string().openapi({ example: 'Air feels fresh — keep windows open until 14:00' }),
+  co2:      z.number().openapi({ example: 612, description: 'CO₂ ppm (indoor sensor)' }),
+  voc:      z.number().openapi({ example: 0.42, description: 'tVOC mg/m³ (indoor sensor)' }),
+  message:  z.string().openapi({ example: 'Air quality is Good' }),
   sparklines: z.object({
     pm25: SparklineSchema,
     pm10: SparklineSchema,
@@ -51,7 +54,7 @@ const ReadingsResponseSchema = z.object({
   data: ReadingsSchema,
 }).openapi('AirQualityReadingsResponse');
 
-// ─── Mock data provider ──────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function aqiCategory(aqi: number) {
   if (aqi <= 50)  return { name: 'Good',       color: '#82DBA6', container: 'var(--md-good-container)',      on: 'var(--md-on-good-container)' };
@@ -61,26 +64,15 @@ function aqiCategory(aqi: number) {
   return               { name: 'Hazardous',    color: '#FFB4AB', container: 'var(--md-bad-container)',       on: 'var(--md-on-bad-container)' };
 }
 
-function getAirQualityMock() {
-  const aqi = Math.round(jitter(42, 8));
-  return {
-    data: {
-      aqi,
-      category: aqiCategory(aqi),
-      pm25:     jitter(8.2, 1.5),
-      pm10:     jitter(14.6, 2.5),
-      co2:      Math.round(jitter(612, 30)),
-      voc:      jitter(0.42, 0.08),
-      message:  'Air feels fresh — keep windows open until 14:00',
-      sparklines: {
-        pm25: makeSeries(28, 8.2,  3,  9),
-        pm10: makeSeries(28, 14.6, 5,  15),
-        co2:  makeSeries(28, 612,  80, 27),
-        voc:  makeSeries(28, 0.42, 0.15, 31),
-      },
-    },
-  };
+function aqiMessage(aqi: number, category: string): string {
+  if (aqi <= 50)  return 'Air quality is Good — safe for all activities';
+  if (aqi <= 100) return 'Air quality is Moderate — sensitive groups take care';
+  if (aqi <= 150) return 'Unhealthy for sensitive groups — limit prolonged outdoor exertion';
+  if (aqi <= 200) return 'Unhealthy — reduce outdoor activities';
+  return                 'Hazardous — avoid all outdoor activities';
 }
+
+// ─── Mock readings (indoor PM history — no real-time source yet) ──────────────
 
 function getReadingsMock() {
   return {
@@ -89,10 +81,10 @@ function getReadingsMock() {
       resolution: '15min',
       count:      48,
       series: {
-        pm03: makeSeries(48, 42, 16, Math.floor(Math.random() * 100)),
-        pm1:  makeSeries(48, 18, 8,  Math.floor(Math.random() * 100)),
-        pm25: makeSeries(48, 9,  4,  Math.floor(Math.random() * 100)),
-        pm10: makeSeries(48, 16, 6,  Math.floor(Math.random() * 100)),
+        pm03: makeSeries(48, 42, 16, 53),
+        pm1:  makeSeries(48, 18, 8,  61),
+        pm25: makeSeries(48, 9,  4,  47),
+        pm10: makeSeries(48, 16, 6,  73),
       },
     },
   };
@@ -105,7 +97,13 @@ const getAirQualityRoute = createRoute({
   path:        '/v1/air-quality',
   tags:        ['Air Quality'],
   summary:     'Get current air quality readings',
-  description: 'Returns current AQI, particulate matter, CO₂, and VOC levels with 28-point sparkline history.',
+  description: [
+    'Returns current outdoor AQI and PM2.5/PM10 from Open-Meteo.',
+    '',
+    'CO₂ and VOC are indoor sensor values (mock until a real indoor sensor is integrated).',
+    '',
+    '**503** is returned when the upstream Open-Meteo API is unreachable.',
+  ].join('\n'),
   responses: {
     200: {
       content:     { 'application/json': { schema: AirQualityResponseSchema } },
@@ -128,7 +126,43 @@ const getReadingsRoute = createRoute({
   },
 });
 
+// ─── Handlers ─────────────────────────────────────────────────────────────────
+
+const handleGetAirQuality: RouteHandler<typeof getAirQualityRoute> = async (c) => {
+  const { latitude, longitude } = config.location;
+
+  let raw;
+  try {
+    raw = await fetchAirQualityFromAPI(latitude, longitude);
+  } catch (err) {
+    return upstreamError(err instanceof Error ? err.message : 'Unknown upstream error');
+  }
+
+  const aqi     = raw.current.us_aqi;
+  const pm25    = +raw.current.pm2_5.toFixed(1);
+  const pm10    = +raw.current.pm10.toFixed(1);
+  const cat     = aqiCategory(aqi);
+
+  return c.json({
+    data: {
+      aqi,
+      category: cat,
+      pm25,
+      pm10,
+      co2:     612,   // indoor sensor — mock until real hardware integration
+      voc:     0.42,  // indoor sensor — mock until real hardware integration
+      message: aqiMessage(aqi, cat.name),
+      sparklines: {
+        pm25: makeSeries(28, pm25,  3,  9),
+        pm10: makeSeries(28, pm10,  5,  15),
+        co2:  makeSeries(28, 612,   80, 27),
+        voc:  makeSeries(28, 0.42, 0.15, 31),
+      },
+    },
+  });
+};
+
 export function registerAirQualityRoutes(app: OpenAPIHono) {
-  app.openapi(getAirQualityRoute, (c) => c.json(getAirQualityMock()));
+  app.openapi(getAirQualityRoute, handleGetAirQuality);
   app.openapi(getReadingsRoute,   (c) => c.json(getReadingsMock()));
 }

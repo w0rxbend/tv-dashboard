@@ -1,5 +1,5 @@
 import { createMemo, For } from 'solid-js';
-import { LineChart } from '../primitives';
+import { LineChart, CardError } from '../primitives';
 import { createPolling } from '../data/createPolling';
 import { fetchAirQualityReadings, POLL } from '../api';
 
@@ -35,6 +35,7 @@ export default function ChartCard() {
 
   return (
     <article class="card card-lg chart-card" aria-label="Environmental telemetry">
+      <CardError error={readings.error}/>
       <div class="chart-header">
         <div>
           <div class="t-label-md muted" style={{ 'font-size': '10px' }}>LAST 12 HOURS</div>
