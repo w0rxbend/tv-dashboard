@@ -5,8 +5,8 @@
  */
 export const SEED = {
   location: {
-    city: 'Stockholm',
-    region: 'Södermalm · SE',
+    city: 'Kyiv',
+    region: 'Kyiv · UA',
   },
   sun: {
     sunrise: '05:24',

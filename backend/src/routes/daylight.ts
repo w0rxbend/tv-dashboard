@@ -2,8 +2,10 @@ import { createRoute, z } from '@hono/zod-openapi';
 import type { OpenAPIHono, RouteHandler } from '@hono/zod-openapi';
 import { config } from '../config.js';
 import { fetchWeatherFromAPI } from '../services/open-meteo.js';
-import { localNow, hhmm, hhmmToMinutes } from '../lib/time.js';
+import { mapDaylightView } from '../services/weather-view.js';
+import { localNow } from '../lib/time.js';
 import { upstreamError } from '../lib/upstream-error.js';
+import { upstreamErrorResponses } from '../lib/api-error.js';
 
 // ─── Schemas ─────────────────────────────────────────────────────────────────
 
@@ -41,6 +43,7 @@ const getDaylightRoute = createRoute({
       content:     { 'application/json': { schema: DaylightResponseSchema } },
       description: 'Daylight data',
     },
+    ...upstreamErrorResponses,
   },
 });
 
@@ -53,27 +56,11 @@ const handleGetDaylight: RouteHandler<typeof getDaylightRoute> = async (c) => {
   try {
     raw = await fetchWeatherFromAPI(latitude, longitude);
   } catch (err) {
-    return upstreamError(err instanceof Error ? err.message : 'Unknown upstream error');
+    return upstreamError(err);
   }
 
-  const { date, totalMinutes: nowMin } = localNow(timezone);
-
-  const sunrise = hhmm(raw.daily.sunrise[0]);
-  const sunset  = hhmm(raw.daily.sunset[0]);
-
-  const sunriseMin = hhmmToMinutes(sunrise);
-  const sunsetMin  = hhmmToMinutes(sunset);
-  const dayLen     = sunsetMin - sunriseMin;
-  const elapsed    = Math.min(1, Math.max(0, (nowMin - sunriseMin) / dayLen));
-
   return c.json({
-    data: {
-      date,
-      sunrise,
-      sunset,
-      progress:         +elapsed.toFixed(4),
-      day_length_hours: +(dayLen / 60).toFixed(2),
-    },
+    data: mapDaylightView(raw, localNow(timezone)),
   });
 };
 

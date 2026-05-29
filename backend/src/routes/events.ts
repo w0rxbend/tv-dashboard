@@ -2,6 +2,7 @@ import { createRoute, z } from '@hono/zod-openapi';
 import type { OpenAPIHono } from '@hono/zod-openapi';
 import { config } from '../config.js';
 import { localNow } from '../lib/time.js';
+import { commonErrorResponses } from '../lib/api-error.js';
 
 // ─── Schemas ─────────────────────────────────────────────────────────────────
 
@@ -21,8 +22,15 @@ const EventsResponseSchema = z.object({
   }),
 }).openapi('EventsResponse');
 
+const IsoDateSchema = z.string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/)
+  .refine((value) => {
+    const date = new Date(`${value}T00:00:00Z`);
+    return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+  }, 'Expected a valid ISO calendar date');
+
 const EventsQuerySchema = z.object({
-  date: z.string().optional().openapi({
+  date: IsoDateSchema.optional().openapi({
     example: '2026-05-28',
     description: 'Filter by date (ISO 8601). Defaults to today.',
     param: { in: 'query', name: 'date' },
@@ -59,6 +67,7 @@ const getEventsRoute = createRoute({
       content:     { 'application/json': { schema: EventsResponseSchema } },
       description: "Today's event list",
     },
+    ...commonErrorResponses,
   },
 });
 
@@ -66,6 +75,6 @@ export function registerEventsRoutes(app: OpenAPIHono) {
   app.openapi(getEventsRoute, (c) => {
     const { date } = c.req.valid('query');
     const target = date ?? localNow(config.location.timezone).date;
-    return c.json(getEventsMock(target));
+    return c.json(getEventsMock(target), 200);
   });
 }

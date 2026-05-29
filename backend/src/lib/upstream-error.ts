@@ -1,14 +1,19 @@
+import { UpstreamError, toAppError, toErrorBody } from './api-error.js';
+
 /**
- * Builds a 503 JSON response for upstream API failures.
+ * Builds a JSON response for upstream API failures.
  *
- * Returns `any` because Hono's RouteHandler types require the schema-typed
- * response shape, but plain `Response` objects are accepted at runtime.
- * Using `any` is the narrowest escape that keeps the cast out of every handler.
+ * Returns `any` so route handlers can preserve their generated response
+ * types without repeating a local cast at every catch site.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function upstreamError(message: string): any {
+export function upstreamError(err: unknown): any {
+  const appError = err instanceof Error
+    ? toAppError(err)
+    : new UpstreamError('Unknown upstream error');
+
   return new Response(
-    JSON.stringify({ error: { code: 'upstream_error', message } }),
-    { status: 503, headers: { 'Content-Type': 'application/json' } },
+    JSON.stringify(toErrorBody(appError)),
+    { status: appError.status, headers: { 'Content-Type': 'application/json' } },
   );
 }

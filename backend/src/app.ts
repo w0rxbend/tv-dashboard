@@ -1,6 +1,8 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { swaggerUI } from '@hono/swagger-ui';
 import { cors } from 'hono/cors';
+import { AppError, jsonError, validationErrorDetails } from './lib/api-error.js';
+import { config } from './config.js';
 
 import { registerLocationRoutes }      from './routes/location.js';
 import { registerWeatherRoutes }       from './routes/weather.js';
@@ -13,11 +15,23 @@ import { registerInsightsRoutes }      from './routes/insights.js';
 import { registerDevicesRoutes }       from './routes/devices.js';
 import { registerEnergyRoutes }        from './routes/energy.js';
 
-const app = new OpenAPIHono().basePath('/api');
+const app = new OpenAPIHono({
+  defaultHook: (result, c) => {
+    if (result.success) return;
+
+    return jsonError(
+      c,
+      new AppError(400, 'validation_error', 'Request validation failed', validationErrorDetails(result.error)),
+    );
+  },
+}).basePath('/api');
+
+app.onError((err, c) => jsonError(c, err));
+app.notFound((c) => jsonError(c, new AppError(404, 'not_found', 'Route not found')));
 
 // ─── CORS (allow local Vite dev server) ──────────────────────────────────────
 
-app.use('*', cors({ origin: ['http://localhost:5173', 'http://localhost:4173'] }));
+app.use('*', cors({ origin: config.server.corsOrigins }));
 
 // ─── Domain routes ───────────────────────────────────────────────────────────
 

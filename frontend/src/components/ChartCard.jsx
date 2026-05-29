@@ -60,7 +60,13 @@ export default function ChartCard() {
       </div>
 
       <div style={{ flex: 1, 'min-height': 0, display: 'flex' }}>
-        <LineChart width={820} height={120} padding={{ t: 8, r: 8, b: 22, l: 32 }} series={series()}/>
+        <LineChart
+          width={820}
+          height={120}
+          padding={{ t: 8, r: 8, b: 22, l: 32 }}
+          series={series()}
+          label="12-hour particulate telemetry trend for PM0.3, PM1, PM2.5, and PM10"
+        />
       </div>
 
       <div class="chart-stats" role="list" aria-label="Statistics">

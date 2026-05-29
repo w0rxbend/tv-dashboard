@@ -3,11 +3,10 @@ import type { OpenAPIHono, RouteHandler } from '@hono/zod-openapi';
 import { config } from '../config.js';
 import {
   fetchWeatherFromAPI,
-  wmoToCondition,
-  degreesToCardinal,
-  uvMeta,
 } from '../services/open-meteo.js';
+import { mapWeatherView } from '../services/weather-view.js';
 import { upstreamError } from '../lib/upstream-error.js';
+import { upstreamErrorResponses } from '../lib/api-error.js';
 
 // ─── Schemas ─────────────────────────────────────────────────────────────────
 
@@ -64,12 +63,11 @@ const getWeatherRoute = createRoute({
       content:     { 'application/json': { schema: WeatherResponseSchema } },
       description: 'Current weather data',
     },
+    ...upstreamErrorResponses,
   },
 });
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
-
-const DAY_LABELS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'] as const;
 
 const handleGetWeather: RouteHandler<typeof getWeatherRoute> = async (c) => {
   const { latitude, longitude, city, region } = config.location;
@@ -78,45 +76,11 @@ const handleGetWeather: RouteHandler<typeof getWeatherRoute> = async (c) => {
   try {
     raw = await fetchWeatherFromAPI(latitude, longitude);
   } catch (err) {
-    return upstreamError(err instanceof Error ? err.message : 'Unknown upstream error');
+    return upstreamError(err);
   }
 
-  const cur   = raw.current;
-  const daily = raw.daily;
-
-  const uvIndex = Math.round(cur.uv_index);
-  const cond    = wmoToCondition(cur.weather_code);
-
-  const forecast = daily.time.map((dateStr, i) => {
-    const dayOfWeek = new Date(dateStr + 'T12:00:00').getDay();
-    const fc = wmoToCondition(daily.weather_code[i]);
-    return {
-      day:          DAY_LABELS[dayOfWeek],
-      icon:         fc.icon,
-      weather_icon: fc.weather_icon,
-      high:         Math.round(daily.temperature_2m_max[i]),
-      low:          Math.round(daily.temperature_2m_min[i]),
-    };
-  });
-
   return c.json({
-    data: {
-      current: {
-        temperature:     cur.temperature_2m,
-        feels_like:      cur.apparent_temperature,
-        condition:       cond.condition,
-        condition_label: cond.condition_label,
-        icon:            cond.icon,
-        weather_icon:    cond.weather_icon,
-        wind_speed:      cur.wind_speed_10m,
-        wind_direction:  degreesToCardinal(cur.wind_direction_10m),
-        humidity:        cur.relative_humidity_2m,
-        uv_index:        uvIndex,
-        ...uvMeta(uvIndex),
-        location: { city, region },
-      },
-      forecast,
-    },
+    data: mapWeatherView(raw, { city, region }),
   });
 };
 

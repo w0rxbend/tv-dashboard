@@ -5,13 +5,13 @@ import { fetchInsights, fetchReminders, fetchDevices, fetchWeather, POLL } from 
 
 const ROTATE_MS = 6000;
 
-export default function BottomStrip() {
+export default function BottomStrip(props) {
   const [idx, setIdx] = createSignal(0);
 
   const insights  = createPolling(fetchInsights,  { interval: POLL.INSIGHTS });
   const reminders = createPolling(fetchReminders, { interval: POLL.REMINDERS });
-  const devices   = createPolling(fetchDevices,   { interval: POLL.DEVICES });
-  const weather   = createPolling(fetchWeather,   { interval: POLL.WEATHER });
+  const devices   = props.devices ?? createPolling(fetchDevices,   { interval: POLL.DEVICES });
+  const weather   = props.weather ?? createPolling(fetchWeather,   { interval: POLL.WEATHER });
 
   const insightList = () => insights.latest?.insights ?? [];
   const wx          = () => weather.latest?.current;

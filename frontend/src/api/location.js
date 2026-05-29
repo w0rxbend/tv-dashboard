@@ -1,3 +1,3 @@
 import { apiGet } from './client.js';
 
-export const fetchLocation = () => apiGet('/v1/location');
+export const fetchLocation = (opts) => apiGet('/v1/location', opts);

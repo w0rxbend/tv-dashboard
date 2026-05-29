@@ -1,10 +1,10 @@
 # Aurora TV Dashboard
 
-A full-screen ambient home dashboard designed for 1920×1080 TV displays. Built with **SolidJS** and a **Hono** BFF (backend-for-frontend) that serves mock sensor data over a typed REST API.
+A full-screen ambient home dashboard designed for 1920×1080 TV displays. Built with **SolidJS** and a **Hono** BFF (backend-for-frontend) that serves live Open-Meteo weather/air-quality data plus local dashboard data over a typed REST API.
 
 ```
 frontend/   SolidJS + Vite — renders the pixel-perfect 7-card layout
-backend/    Hono + Zod/OpenAPI — 10 REST endpoints, Swagger UI built-in
+backend/    Hono + Zod/OpenAPI — REST endpoints, Swagger UI built-in
 ```
 
 ---
@@ -65,6 +65,14 @@ cd frontend && npm run build && npm run preview
 
 For production you typically serve `frontend/dist/` as static files from the same origin as the backend, so no CORS configuration is needed.
 
+### Quality gate
+
+```bash
+npm run check
+```
+
+The root check runs formatting whitespace validation, backend typechecking, frontend build validation, and the backend/frontend test suites.
+
 ---
 
 ## Project Structure
@@ -115,6 +123,19 @@ tv-dashboard/
 | Variable | Location | Default | Description |
 |---|---|---|---|
 | `PORT` | backend | `3001` | Hono server port |
+| `CORS_ORIGINS` | backend | `http://localhost:5173,http://localhost:4173` | Comma-separated origins allowed by the backend |
+| `LOCATION_CITY` | backend | `Kyiv` | Display city returned by `/api/v1/location` |
+| `LOCATION_REGION` | backend | `Kyiv · UA` | Display region returned by `/api/v1/location` |
+| `LOCATION_COUNTRY` | backend | `UA` | Country code returned by `/api/v1/location` |
+| `LOCATION_TIMEZONE` | backend | `Europe/Kyiv` | IANA timezone used by time-aware routes |
+| `LOCATION_LAT` | backend | `50.4501` | Latitude used for Open-Meteo requests |
+| `LOCATION_LON` | backend | `30.5234` | Longitude used for Open-Meteo requests |
+| `OPEN_METEO_TIMEOUT_MS` | backend | `8000` | Upstream request timeout |
+| `OPEN_METEO_RETRIES` | backend | `1` | Retry count for retryable Open-Meteo failures |
+| `OPEN_METEO_RETRY_BACKOFF_MS` | backend | `100` | Initial retry backoff in milliseconds |
+| `OPEN_METEO_WEATHER_TTL_MS` | backend | `900000` | Fresh-cache TTL for weather responses |
+| `OPEN_METEO_AIR_QUALITY_TTL_MS` | backend | `1800000` | Fresh-cache TTL for air-quality responses |
+| `OPEN_METEO_STALE_FALLBACK_MS` | backend | `7200000` | Stale cache window used when upstream refresh fails |
 | `VITE_API_BASE` | frontend | `/api` | Base path for all API calls |
 
 Create `backend/.env` or pass vars inline — there is no `.env` file committed.

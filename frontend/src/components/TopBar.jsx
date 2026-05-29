@@ -5,7 +5,7 @@ import { createPolling } from '../data/createPolling';
 import { fetchLocation, fetchDevices, POLL } from '../api';
 import AppLogo from './AppLogo';
 
-export default function TopBar() {
+export default function TopBar(props) {
   const now  = useNow(1000);
   const hh   = createMemo(() => String(now().getHours()).padStart(2, '0'));
   const mm   = createMemo(() => String(now().getMinutes()).padStart(2, '0'));
@@ -14,7 +14,7 @@ export default function TopBar() {
   const date = createMemo(() => now().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
 
   const [location] = createResource(fetchLocation);
-  const devices    = createPolling(fetchDevices, { interval: POLL.DEVICES });
+  const devices    = props.devices ?? createPolling(fetchDevices, { interval: POLL.DEVICES });
 
   const locationLabel = () => {
     const loc = location();

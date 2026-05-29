@@ -8,7 +8,7 @@ const LocationSchema = z.object({
   city:      z.string().openapi({ example: 'Kyiv' }),
   region:    z.string().openapi({ example: 'Kyiv · UA' }),
   country:   z.string().openapi({ example: 'UA' }),
-  timezone:  z.string().openapi({ example: 'Europe/Kiev' }),
+  timezone:  z.string().openapi({ example: 'Europe/Kyiv' }),
   latitude:  z.number().openapi({ example: 50.4501 }),
   longitude: z.number().openapi({ example: 30.5234 }),
 }).openapi('Location');

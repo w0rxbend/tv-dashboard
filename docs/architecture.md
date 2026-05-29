@@ -171,12 +171,12 @@ export function registerFooRoutes(app: OpenAPIHono) {
 
 ### Timezone Handling
 
-All time-relative mock data uses **Stockholm local time** via `Intl.DateTimeFormat` with `timeZone: 'Europe/Stockholm'`. This means the backend can run in any timezone (including UTC) and still return correct dates, progress values, and event active flags.
+All time-relative dashboard data uses the configured IANA timezone from `LOCATION_TIMEZONE` via `Intl.DateTimeFormat`. The default is `Europe/Kyiv`, so the backend can run in any host timezone (including UTC) and still return correct dates, progress values, and event active flags.
 
 ```typescript
 // daylight.ts + events.ts pattern
 const parts = new Intl.DateTimeFormat('sv-SE', {
-  timeZone: 'Europe/Stockholm',
+  timeZone: config.location.timezone,
   year: 'numeric', month: '2-digit', day: '2-digit',
   hour: '2-digit', minute: '2-digit', hour12: false,
 }).formatToParts(new Date());

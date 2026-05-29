@@ -6,6 +6,7 @@ import AgendaCard  from './components/AgendaCard';
 import ChartCard   from './components/ChartCard';
 import IndoorCard  from './components/IndoorCard';
 import BottomStrip from './components/BottomStrip';
+import { createDashboardResources } from './data/dashboardResources';
 
 const DESIGN_W = 1920;
 const DESIGN_H = 1080;
@@ -21,6 +22,7 @@ function Background() {
 }
 
 export default function App() {
+  const resources = createDashboardResources();
   const [scale, setScale] = createSignal({
     x: window.innerWidth  / DESIGN_W,
     y: window.innerHeight / DESIGN_H,
@@ -37,13 +39,13 @@ export default function App() {
       <div class="stage" style={{ transform: `scale(${scale().x}, ${scale().y})` }}>
         <Background/>
         <div class="dash">
-          <div class="area-topbar"><TopBar/></div>
+          <div class="area-topbar"><TopBar devices={resources.devices}/></div>
           <div class="area-aqi"><AQICard/></div>
-          <div class="area-wx"><WeatherCard/></div>
+          <div class="area-wx"><WeatherCard weather={resources.weather}/></div>
           <div class="area-agenda"><AgendaCard/></div>
           <div class="area-chart"><ChartCard/></div>
           <div class="area-indoor"><IndoorCard/></div>
-          <div class="area-bottom"><BottomStrip/></div>
+          <div class="area-bottom"><BottomStrip devices={resources.devices} weather={resources.weather}/></div>
         </div>
       </div>
     </div>

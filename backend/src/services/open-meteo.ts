@@ -1,9 +1,13 @@
 // ─── Open-Meteo API service ───────────────────────────────────────────────────
 // Uses Node 18+ built-in fetch.  No extra npm packages required.
 
+import { z } from 'zod';
+import { config } from '../config.js';
+import { UpstreamError } from '../lib/api-error.js';
+
 // ─── TTL cache ───────────────────────────────────────────────────────────────
 
-interface CacheEntry<T> { value: T; expiresAt: number; }
+interface CacheEntry<T> { value: T; expiresAt: number; staleUntil: number; }
 
 class TtlCache<T> {
   private readonly store = new Map<string, CacheEntry<T>>();
@@ -11,17 +15,22 @@ class TtlCache<T> {
   get(key: string): T | undefined {
     const entry = this.store.get(key);
     if (!entry) return undefined;
-    if (Date.now() > entry.expiresAt) { this.store.delete(key); return undefined; }
+    if (Date.now() > entry.expiresAt) return undefined;
     return entry.value;
   }
 
-  set(key: string, value: T, ttlMs: number): void {
-    this.store.set(key, { value, expiresAt: Date.now() + ttlMs });
+  getStale(key: string): T | undefined {
+    const entry = this.store.get(key);
+    if (!entry) return undefined;
+    if (Date.now() > entry.staleUntil) { this.store.delete(key); return undefined; }
+    return entry.value;
+  }
+
+  set(key: string, value: T, ttlMs: number, staleMs: number): void {
+    const now = Date.now();
+    this.store.set(key, { value, expiresAt: now + ttlMs, staleUntil: now + ttlMs + staleMs });
   }
 }
-
-const WEATHER_TTL_MS    = 15 * 60 * 1_000;  // Open-Meteo updates ~every 15 min
-const AIR_QUALITY_TTL_MS = 30 * 60 * 1_000; // AQ model updates ~hourly
 
 const weatherCache    = new TtlCache<OpenMeteoWeatherResponse>();
 const airQualityCache = new TtlCache<OpenMeteoAirQualityResponse>();
@@ -57,6 +66,49 @@ export interface OpenMeteoAirQualityResponse {
     pm10:         number;
   };
 }
+
+const OpenMeteoDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+const OpenMeteoDateTimeSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/);
+
+const OpenMeteoWeatherSchema = z.object({
+  current: z.object({
+    temperature_2m: z.number(),
+    relative_humidity_2m: z.number(),
+    apparent_temperature: z.number(),
+    weather_code: z.number(),
+    wind_speed_10m: z.number(),
+    wind_direction_10m: z.number(),
+    uv_index: z.number(),
+  }),
+  daily: z.object({
+    time: z.array(OpenMeteoDateSchema).min(1),
+    weather_code: z.array(z.number()).min(1),
+    temperature_2m_max: z.array(z.number()).min(1),
+    temperature_2m_min: z.array(z.number()).min(1),
+    sunrise: z.array(OpenMeteoDateTimeSchema).min(1),
+    sunset: z.array(OpenMeteoDateTimeSchema).min(1),
+    uv_index_max: z.array(z.number()).min(1),
+  }).refine((daily) => {
+    const len = daily.time.length;
+    return [
+      daily.weather_code,
+      daily.temperature_2m_max,
+      daily.temperature_2m_min,
+      daily.sunrise,
+      daily.sunset,
+      daily.uv_index_max,
+    ].every((values) => values.length === len);
+  }, 'Expected Open-Meteo daily arrays to have matching lengths'),
+});
+
+const OpenMeteoAirQualitySchema = z.object({
+  current: z.object({
+    european_aqi: z.number(),
+    us_aqi: z.number(),
+    pm2_5: z.number(),
+    pm10: z.number(),
+  }),
+});
 
 // ─── WMO weather code mapping ─────────────────────────────────────────────────
 
@@ -105,6 +157,71 @@ export function uvMeta(index: number): { uv_label: string; uv_advice: string } {
 
 // ─── Fetch functions (with caching) ──────────────────────────────────────────
 
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function retryBackoffMs(attempt: number): number {
+  return config.upstream.openMeteoRetryBackoffMs * 2 ** attempt;
+}
+
+async function fetchJsonWithTimeout(url: string): Promise<unknown> {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt <= config.upstream.openMeteoRetries; attempt++) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), config.upstream.openMeteoTimeoutMs);
+
+    try {
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        const retryable = res.status >= 500 || res.status === 429;
+        const message = `Open-Meteo API returned ${res.status} ${res.statusText}`;
+        if (retryable && attempt < config.upstream.openMeteoRetries) {
+          lastError = new UpstreamError(message);
+          await delay(retryBackoffMs(attempt));
+          continue;
+        }
+        throw new UpstreamError(message, retryable ? 503 : 502, retryable ? 'upstream_error' : 'upstream_bad_status');
+      }
+
+      return await res.json();
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err instanceof UpstreamError && err.code === 'upstream_bad_status') throw err;
+
+      const timedOut = err instanceof Error && err.name === 'AbortError';
+      lastError = timedOut
+        ? new UpstreamError('Open-Meteo request timed out', 504, 'upstream_timeout')
+        : err;
+
+      if (attempt >= config.upstream.openMeteoRetries) break;
+      await delay(retryBackoffMs(attempt));
+    }
+  }
+
+  if (lastError instanceof UpstreamError) throw lastError;
+  if (lastError instanceof Error) throw new UpstreamError(lastError.message);
+  throw new UpstreamError('Open-Meteo request failed');
+}
+
+function parseUpstream<T>(schema: z.ZodType<T>, payload: unknown): T {
+  const result = schema.safeParse(payload);
+  if (result.success) return result.data;
+
+  throw new UpstreamError(
+    'Open-Meteo response did not match the expected shape',
+    502,
+    'upstream_bad_response',
+    result.error.issues.map((issue) => ({
+      path: issue.path.map(String).join('.'),
+      message: issue.message,
+    })),
+  );
+}
+
 export async function fetchWeatherFromAPI(
   lat: number,
   lon: number,
@@ -122,12 +239,16 @@ export async function fetchWeatherFromAPI(
     forecast_days: '7',
   });
 
-  const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
-  if (!res.ok) throw new Error(`Open-Meteo forecast API returned ${res.status} ${res.statusText}`);
-
-  const data = await res.json() as OpenMeteoWeatherResponse;
-  weatherCache.set(cacheKey, data, WEATHER_TTL_MS);
-  return data;
+  try {
+    const payload = await fetchJsonWithTimeout(`https://api.open-meteo.com/v1/forecast?${params}`);
+    const data = parseUpstream(OpenMeteoWeatherSchema, payload);
+    weatherCache.set(cacheKey, data, config.upstream.weatherTtlMs, config.upstream.staleFallbackMs);
+    return data;
+  } catch (err) {
+    const stale = weatherCache.getStale(cacheKey);
+    if (stale) return stale;
+    throw err;
+  }
 }
 
 export async function fetchAirQualityFromAPI(
@@ -145,10 +266,14 @@ export async function fetchAirQualityFromAPI(
     timezone:  'auto',
   });
 
-  const res = await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?${params}`);
-  if (!res.ok) throw new Error(`Open-Meteo air-quality API returned ${res.status} ${res.statusText}`);
-
-  const data = await res.json() as OpenMeteoAirQualityResponse;
-  airQualityCache.set(cacheKey, data, AIR_QUALITY_TTL_MS);
-  return data;
+  try {
+    const payload = await fetchJsonWithTimeout(`https://air-quality-api.open-meteo.com/v1/air-quality?${params}`);
+    const data = parseUpstream(OpenMeteoAirQualitySchema, payload);
+    airQualityCache.set(cacheKey, data, config.upstream.airQualityTtlMs, config.upstream.staleFallbackMs);
+    return data;
+  } catch (err) {
+    const stale = airQualityCache.getStale(cacheKey);
+    if (stale) return stale;
+    throw err;
+  }
 }

@@ -28,6 +28,10 @@ const C = {
   sw:     3.5,
 };
 
+function prefersReducedMotion() {
+  return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+}
+
 // ─── Cloud paths ──────────────────────────────────────────────────────────────
 // Constructed with cubic beziers so the two humps have a clear visible valley.
 // Z always closes back to the start → flat bottom edge for free.
@@ -94,6 +98,8 @@ function Flake({ cx, cy, arm = 7 }) {
 function ClearIcon() {
   let sunG, glowC;
   onMount(() => {
+    if (prefersReducedMotion()) return;
+
     const ctx = gsap.context(() => {
       gsap.to(glowC, { scale: 1.16, opacity: 0.55, duration: 2.8, ease: 'sine.inOut', repeat: -1, yoyo: true, svgOrigin: '60 60' });
       gsap.to(sunG,  { rotation: 360, duration: 22, ease: 'none', repeat: -1, svgOrigin: '60 60' });
@@ -128,6 +134,8 @@ function ClearIcon() {
 function PartlyCloudyIcon() {
   let sunG, cloudP;
   onMount(() => {
+    if (prefersReducedMotion()) return;
+
     const ctx = gsap.context(() => {
       gsap.to(sunG,   { rotation: 360, duration: 26, ease: 'none', repeat: -1, svgOrigin: '82 32' });
       gsap.to(cloudP, { y: -7, duration: 3.2, ease: 'sine.inOut', repeat: -1, yoyo: true });
@@ -154,6 +162,8 @@ function PartlyCloudyIcon() {
 function CloudyIcon() {
   let frontC, backC;
   onMount(() => {
+    if (prefersReducedMotion()) return;
+
     const ctx = gsap.context(() => {
       gsap.to(frontC, { y: -8, duration: 3.4, ease: 'sine.inOut', repeat: -1, yoyo: true });
       gsap.to(backC,  { y: -5, duration: 4.2, ease: 'sine.inOut', repeat: -1, yoyo: true, delay: 0.8 });
@@ -183,6 +193,8 @@ function RainyIcon() {
   const drops = [];
 
   onMount(() => {
+    if (prefersReducedMotion()) return;
+
     const ctx = gsap.context(() => {
       gsap.to(cloudP, { y: -5, duration: 3.2, ease: 'sine.inOut', repeat: -1, yoyo: true });
       gsap.fromTo(drops,
@@ -214,6 +226,8 @@ function HeavyRainIcon() {
   const lines = [];
 
   onMount(() => {
+    if (prefersReducedMotion()) return;
+
     const ctx = gsap.context(() => {
       gsap.to(cloudP, { y: -5, duration: 3, ease: 'sine.inOut', repeat: -1, yoyo: true });
       gsap.fromTo(lines,
@@ -247,6 +261,8 @@ function ThunderstormIcon() {
   let cloudP, boltG, bloom;
 
   onMount(() => {
+    if (prefersReducedMotion()) return;
+
     const ctx = gsap.context(() => {
       gsap.to(cloudP, { x: 4, duration: 2.8, ease: 'sine.inOut', repeat: -1, yoyo: true });
 
@@ -291,6 +307,8 @@ function SnowyIcon() {
   const flakeGs = [];
 
   onMount(() => {
+    if (prefersReducedMotion()) return;
+
     const ctx = gsap.context(() => {
       gsap.to(cloudP, { y: -5, duration: 3.8, ease: 'sine.inOut', repeat: -1, yoyo: true });
       gsap.fromTo(flakeGs,
@@ -323,6 +341,8 @@ function WindyIcon() {
   const wls = [];
 
   onMount(() => {
+    if (prefersReducedMotion()) return;
+
     const ctx = gsap.context(() => {
       gsap.to(cloudP, { x: 6, duration: 2.4, ease: 'sine.inOut', repeat: -1, yoyo: true });
 
@@ -370,6 +390,8 @@ function FoggyIcon() {
   const bars = [];
 
   onMount(() => {
+    if (prefersReducedMotion()) return;
+
     const ctx = gsap.context(() => {
       bars.forEach((el, i) => {
         if (!el) return;

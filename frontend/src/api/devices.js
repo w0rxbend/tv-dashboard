@@ -1,3 +1,3 @@
 import { apiGet } from './client.js';
 
-export const fetchDevices = () => apiGet('/v1/devices');
+export const fetchDevices = (opts) => apiGet('/v1/devices', opts);

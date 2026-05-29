@@ -25,7 +25,8 @@ Non-2xx responses and handled errors use:
   "error": {
     "code":    "string",
     "message": "string",
-    "details": []
+    "details": [],
+    "requestId": "optional-string"
   }
 }
 ```
@@ -53,12 +54,12 @@ Returns the static location configuration. Changes very rarely; suitable for onc
 ```json
 {
   "data": {
-    "city":      "Stockholm",
-    "region":    "Södermalm · SE",
-    "country":   "SE",
-    "timezone":  "Europe/Stockholm",
-    "latitude":  59.3147,
-    "longitude": 18.0699
+    "city":      "Kyiv",
+    "region":    "Kyiv · UA",
+    "country":   "UA",
+    "timezone":  "Europe/Kyiv",
+    "latitude":  50.4501,
+    "longitude": 30.5234
   }
 }
 ```
@@ -88,8 +89,8 @@ Current outdoor conditions and a 7-day forecast.
       "uv_label":        "Moderate",
       "uv_advice":       "Wear sunscreen",
       "location": {
-        "city":   "Stockholm",
-        "region": "Södermalm · SE"
+        "city":   "Kyiv",
+        "region": "Kyiv · UA"
       }
     },
     "forecast": [
@@ -209,13 +210,13 @@ Indoor sensor readings from the living room array.
 
 ### GET `/api/v1/events`
 
-Calendar events for a given date. The `active` flag is `true` when the event is currently in progress (evaluated server-side in Stockholm local time).
+Calendar events for a given date. The `active` flag is `true` when the event is currently in progress (evaluated server-side in the configured location timezone).
 
 **Query parameters**
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `date` | `string` (ISO 8601) | No | Date to return events for. Defaults to today in Stockholm time. |
+| `date` | `string` (`YYYY-MM-DD`) | No | Date to return events for. Defaults to today in the configured location timezone. |
 
 **Example** — `GET /api/v1/events?date=2026-05-28`
 
@@ -240,7 +241,7 @@ Calendar events for a given date. The `active` flag is `true` when the event is 
 }
 ```
 
-**Active-window reference (Stockholm local time)**
+**Active-window reference (configured location time)**
 
 | Event | Window |
 |---|---|
@@ -275,7 +276,7 @@ All upcoming and recently completed reminders. Static mock; does not vary by dat
 
 ### GET `/api/v1/daylight`
 
-Sunrise, sunset, and daylight progress for today. All times are Stockholm local time.
+Sunrise, sunset, and daylight progress for today. All times are local to the configured location.
 
 **Response**
 
@@ -296,7 +297,7 @@ Sunrise, sunset, and daylight progress for today. All times are Stockholm local 
 | Field | Description |
 |---|---|
 | `progress` | Fraction of the daylight window elapsed. `0.0` = sunrise, `1.0` = sunset. Clamped to `[0, 1]`. |
-| `date` | Stockholm local calendar date (`YYYY-MM-DD`). |
+| `date` | Configured location calendar date (`YYYY-MM-DD`). |
 | `day_length_hours` | Total daylight duration in decimal hours. |
 
 ---

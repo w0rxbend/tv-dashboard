@@ -17,12 +17,18 @@
 import gsap from 'gsap';
 import { onMount, onCleanup } from 'solid-js';
 
+function prefersReducedMotion() {
+  return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+}
+
 export default function AppLogo(props) {
   const sz = () => props.size ?? 44;
 
   let sunG, glowC, drop1, drop2, drop3, sepLine;
 
   onMount(() => {
+    if (prefersReducedMotion()) return;
+
     const ctx = gsap.context(() => {
       // Sun glow breathes
       gsap.to(glowC, {

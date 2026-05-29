@@ -4,8 +4,8 @@ import { CardError } from '../primitives';
 import { createPolling } from '../data/createPolling';
 import { fetchWeather, POLL } from '../api';
 
-export default function WeatherCard() {
-  const weather = createPolling(fetchWeather, { interval: POLL.WEATHER });
+export default function WeatherCard(props) {
+  const weather = props.weather ?? createPolling(fetchWeather, { interval: POLL.WEATHER });
 
   const current  = () => weather.latest?.current;
   const forecast = () => weather.latest?.forecast ?? [];

@@ -1,4 +1,5 @@
-import { createMemo, For, Index, mergeProps } from 'solid-js';
+import { createMemo, For, Index, Show, mergeProps } from 'solid-js';
+import { normalizeChartSeries } from './lineChartModel';
 
 const X_LABELS = ['18:00', '21:00', '00:00', '03:00', 'NOW'];
 
@@ -19,13 +20,21 @@ export function LineChart(props) {
     const { series, width, height, padding: p } = merged;
     const inner = { w: width - p.l - p.r, h: height - p.t - p.b };
 
-    const all = series.flatMap(s => s.data);
+    const validSeries = normalizeChartSeries(series);
+    const all = validSeries.flatMap(s => s.data);
+
+    if (!all.length) {
+      const gridYs = [0, 1, 2, 3].map(i => p.t + (i / 3) * inner.h);
+      const xTicks = [0, 0.25, 0.5, 0.75, 1].map(t => p.l + t * inner.w);
+      return { empty: true, gridYs, gridLabels: ['', '', '', ''], xTicks, seriesPaths: [], p, width, height };
+    }
+
     const min = Math.min(...all);
     const max = Math.max(...all);
     const span = max - min || 1;
-    const n = series[0]?.data.length || 1;
+    const n = validSeries[0]?.data.length || 2;
 
-    const xAt = i => p.l + (i / (n - 1)) * inner.w;
+    const xAt = i => p.l + (i / Math.max(1, n - 1)) * inner.w;
     const yAt = v => p.t + inner.h - ((v - min) / span) * inner.h;
 
     const buildLine = data => {
@@ -43,7 +52,7 @@ export function LineChart(props) {
     const gridLabels = [0, 1, 2, 3].map(i => Math.round(max - (i / 3) * span));
     const xTicks    = [0, 0.25, 0.5, 0.75, 1].map(t => p.l + t * inner.w);
 
-    const seriesPaths = series.map((s, i) => {
+    const seriesPaths = validSeries.map((s, i) => {
       const line = buildLine(s.data);
       return {
         gid: `ar${i}`,
@@ -55,7 +64,7 @@ export function LineChart(props) {
       };
     });
 
-    return { gridYs, gridLabels, xTicks, seriesPaths, p, width, height };
+    return { empty: false, gridYs, gridLabels, xTicks, seriesPaths, p, width, height };
   });
 
   return (
@@ -64,8 +73,22 @@ export function LineChart(props) {
       height={merged.height}
       viewBox={`0 0 ${merged.width} ${merged.height}`}
       preserveAspectRatio="none"
-      aria-hidden="true"
+      role="img"
+      aria-label={merged.label ?? 'Telemetry line chart'}
     >
+      <Show when={computed().empty}>
+        <text
+          x={computed().width / 2}
+          y={computed().height / 2}
+          text-anchor="middle"
+          font-size="12"
+          fill="var(--md-on-surface-variant)"
+          font-family="Roboto, sans-serif"
+        >
+          Loading telemetry...
+        </text>
+      </Show>
+
       {/* Horizontal grid lines + Y-axis labels */}
       <For each={computed().gridYs}>
         {(y, i) => (

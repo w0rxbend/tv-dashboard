@@ -1,3 +1,3 @@
 import { apiGet } from './client.js';
 
-export const fetchDaylight = () => apiGet('/v1/daylight');
+export const fetchDaylight = (opts) => apiGet('/v1/daylight', opts);

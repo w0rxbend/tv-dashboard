@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "typecheck": "vite build",
+    "test": "node --conditions browser --import ../backend/node_modules/tsx/dist/esm/index.mjs --test src/**/*.test.js",
     "preview": "vite preview"
   },
   "dependencies": {

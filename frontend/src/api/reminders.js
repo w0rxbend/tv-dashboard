@@ -1,3 +1,3 @@
 import { apiGet } from './client.js';
 
-export const fetchReminders = () => apiGet('/v1/reminders');
+export const fetchReminders = (opts) => apiGet('/v1/reminders', opts);

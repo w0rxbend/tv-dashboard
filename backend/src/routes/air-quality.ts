@@ -3,7 +3,9 @@ import type { OpenAPIHono, RouteHandler } from '@hono/zod-openapi';
 import { makeSeries } from '../lib/mock.js';
 import { config } from '../config.js';
 import { fetchAirQualityFromAPI } from '../services/open-meteo.js';
+import { mapAirQualityView } from '../services/air-quality-view.js';
 import { upstreamError } from '../lib/upstream-error.js';
+import { upstreamErrorResponses } from '../lib/api-error.js';
 
 // ─── Schemas ─────────────────────────────────────────────────────────────────
 
@@ -54,24 +56,6 @@ const ReadingsResponseSchema = z.object({
   data: ReadingsSchema,
 }).openapi('AirQualityReadingsResponse');
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function aqiCategory(aqi: number) {
-  if (aqi <= 50)  return { name: 'Good',       color: '#82DBA6', container: 'var(--md-good-container)',      on: 'var(--md-on-good-container)' };
-  if (aqi <= 100) return { name: 'Moderate',   color: '#FFD68A', container: 'var(--md-warn-container)',      on: 'var(--md-on-warn-container)' };
-  if (aqi <= 150) return { name: 'Unhealthy*', color: '#FFB59A', container: 'var(--md-tertiary-container)',  on: 'var(--md-on-tertiary-container)' };
-  if (aqi <= 200) return { name: 'Unhealthy',  color: '#FFB4AB', container: 'var(--md-bad-container)',       on: 'var(--md-on-bad-container)' };
-  return               { name: 'Hazardous',    color: '#FFB4AB', container: 'var(--md-bad-container)',       on: 'var(--md-on-bad-container)' };
-}
-
-function aqiMessage(aqi: number, category: string): string {
-  if (aqi <= 50)  return 'Air quality is Good — safe for all activities';
-  if (aqi <= 100) return 'Air quality is Moderate — sensitive groups take care';
-  if (aqi <= 150) return 'Unhealthy for sensitive groups — limit prolonged outdoor exertion';
-  if (aqi <= 200) return 'Unhealthy — reduce outdoor activities';
-  return                 'Hazardous — avoid all outdoor activities';
-}
-
 // ─── Mock readings (indoor PM history — no real-time source yet) ──────────────
 
 function getReadingsMock() {
@@ -109,6 +93,7 @@ const getAirQualityRoute = createRoute({
       content:     { 'application/json': { schema: AirQualityResponseSchema } },
       description: 'Current air quality data',
     },
+    ...upstreamErrorResponses,
   },
 });
 
@@ -135,31 +120,10 @@ const handleGetAirQuality: RouteHandler<typeof getAirQualityRoute> = async (c) =
   try {
     raw = await fetchAirQualityFromAPI(latitude, longitude);
   } catch (err) {
-    return upstreamError(err instanceof Error ? err.message : 'Unknown upstream error');
+    return upstreamError(err);
   }
 
-  const aqi     = raw.current.us_aqi;
-  const pm25    = +raw.current.pm2_5.toFixed(1);
-  const pm10    = +raw.current.pm10.toFixed(1);
-  const cat     = aqiCategory(aqi);
-
-  return c.json({
-    data: {
-      aqi,
-      category: cat,
-      pm25,
-      pm10,
-      co2:     612,   // indoor sensor — mock until real hardware integration
-      voc:     0.42,  // indoor sensor — mock until real hardware integration
-      message: aqiMessage(aqi, cat.name),
-      sparklines: {
-        pm25: makeSeries(28, pm25,  3,  9),
-        pm10: makeSeries(28, pm10,  5,  15),
-        co2:  makeSeries(28, 612,   80, 27),
-        voc:  makeSeries(28, 0.42, 0.15, 31),
-      },
-    },
-  });
+  return c.json({ data: mapAirQualityView(raw) });
 };
 
 export function registerAirQualityRoutes(app: OpenAPIHono) {

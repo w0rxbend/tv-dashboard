@@ -9,7 +9,7 @@ import { createResource, onCleanup } from 'solid-js';
  * Must be called inside a reactive owner (component function or runWithOwner).
  *
  * @template T
- * @param {() => Promise<T>} fetcher  Zero-argument async function.
+ * @param {(opts?: { signal?: AbortSignal }) => Promise<T>} fetcher  Async function.
  * @param {{ interval: number }} options
  * @returns {import('solid-js').Resource<T>}
  *
@@ -19,10 +19,28 @@ import { createResource, onCleanup } from 'solid-js';
  * <span>{weather.latest?.current?.temperature ?? '—'}</span>
  */
 export function createPolling(fetcher, { interval }) {
-  const [resource, { refetch }] = createResource(fetcher);
+  let controller = null;
 
-  const id = setInterval(() => { refetch(); }, interval);
-  onCleanup(() => clearInterval(id));
+  const [resource, { refetch }] = createResource(async () => {
+    controller = new AbortController();
+    const signal = controller.signal;
+
+    try {
+      return await fetcher({ signal });
+    } finally {
+      if (controller?.signal === signal) controller = null;
+    }
+  });
+
+  const refetchIfIdle = () => {
+    if (!resource.loading) refetch();
+  };
+
+  const id = setInterval(refetchIfIdle, interval);
+  onCleanup(() => {
+    clearInterval(id);
+    controller?.abort();
+  });
 
   return resource;
 }
