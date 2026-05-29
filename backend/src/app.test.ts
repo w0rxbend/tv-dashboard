@@ -46,3 +46,11 @@ test('OpenAPI documents upstream-backed error responses', async () => {
     assert.ok(spec.paths[path].get.responses['504']);
   }
 });
+
+test('OpenAPI documents dashboard dependency status', async () => {
+  const res = await app.fetch(new Request('http://localhost/api/openapi.json'));
+  const spec = await res.json();
+
+  assert.equal(res.status, 200);
+  assert.ok(spec.paths['/api/v1/status'].get.responses['200']);
+});

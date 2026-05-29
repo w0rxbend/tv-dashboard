@@ -14,6 +14,7 @@ import { registerDaylightRoutes }      from './routes/daylight.js';
 import { registerInsightsRoutes }      from './routes/insights.js';
 import { registerDevicesRoutes }       from './routes/devices.js';
 import { registerEnergyRoutes }        from './routes/energy.js';
+import { registerStatusRoutes }        from './routes/status.js';
 
 const app = new OpenAPIHono({
   defaultHook: (result, c) => {
@@ -45,6 +46,7 @@ registerDaylightRoutes(app);
 registerInsightsRoutes(app);
 registerDevicesRoutes(app);
 registerEnergyRoutes(app);
+registerStatusRoutes(app);
 
 // ─── Health check ────────────────────────────────────────────────────────────
 
@@ -73,6 +75,7 @@ app.doc('/openapi.json', {
       '| Events | `GET /api/v1/events` | 10 min |',
       '| Reminders | `GET /api/v1/reminders` | 10 min |',
       '| Daylight | `GET /api/v1/daylight` | once/day |',
+      '| Dependency status | `GET /api/v1/status` | 1 min |',
     ].join('\n'),
   },
   tags: [
@@ -86,6 +89,7 @@ app.doc('/openapi.json', {
     { name: 'Insights',       description: 'AI-generated home environment insights' },
     { name: 'Devices',        description: 'Sensor mesh status' },
     { name: 'Energy',         description: 'Home energy consumption and solar generation' },
+    { name: 'Status',         description: 'Dashboard dependency health' },
   ],
 });
 

@@ -6,6 +6,7 @@ export { fetchEvents }                               from './events.js';
 export { fetchReminders }                            from './reminders.js';
 export { fetchDaylight }                             from './daylight.js';
 export { fetchInsights }                             from './insights.js';
+export { fetchStatus }                               from './status.js';
 export { ApiError }                                  from './client.js';
 
 /**
@@ -26,4 +27,5 @@ export const POLL = Object.freeze({
   EVENTS:         600_000,     // 10 min
   REMINDERS:      600_000,     // 10 min
   DAYLIGHT:       86_400_000,  // 24 h
+  STATUS:         60_000,      // 1 min
 });

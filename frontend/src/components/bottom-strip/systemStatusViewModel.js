@@ -2,9 +2,33 @@ import { resourceStatus, summarizeStatuses } from '../../data/resourceStatus';
 
 const STATUS_RANK = {
   down: 4,
+  not_configured: 4,
   checking: 3,
   degraded: 2,
   ok: 1,
+};
+
+const BACKEND_STATUS = {
+  operational: 'ok',
+  degraded: 'degraded',
+  down: 'down',
+  not_configured: 'down',
+};
+
+const SERVICE_ICONS = {
+  airgradient: 'sensors',
+  weather: 'partly_cloudy_day',
+  calendar: 'event_available',
+  reminders: 'checklist',
+  insights: 'auto_awesome',
+};
+
+const SERVICE_LABELS = {
+  airgradient: 'AirGradient',
+  weather: 'Weather',
+  calendar: 'Calendar',
+  reminders: 'Reminders',
+  insights: 'Insights',
 };
 
 function worstStatus(resources) {
@@ -38,6 +62,41 @@ function serviceGroup({ key, label, icon, resources }) {
 }
 
 export function createSystemStatusModel(resources) {
+  const explicitStatus = resources.systemStatus?.latest;
+  if (explicitStatus?.services?.length) {
+    const services = explicitStatus.services.map((service) => ({
+      icon: SERVICE_ICONS[service.key] ?? 'settings_ethernet',
+      key: service.key,
+      label: service.label ?? SERVICE_LABELS[service.key] ?? service.key,
+      message: service.message,
+      status: BACKEND_STATUS[service.status] ?? 'checking',
+    }));
+    const counts = summarizeStatuses(services.map((service) => service.status));
+    const summary = (() => {
+      if (counts.down) return `${counts.down} feed${counts.down === 1 ? '' : 's'} unavailable`;
+      if (counts.checking) return 'Checking data feeds';
+      if (explicitStatus.status === 'degraded') return 'Some feeds degraded';
+      return 'All systems operational';
+    })();
+
+    return { counts, services, summary };
+  }
+
+  if (resources.systemStatus?.error && resources.systemStatus.error?.code !== 'cancelled') {
+    const services = [{
+      icon: 'hub',
+      key: 'status-api',
+      label: 'Status API',
+      message: resources.systemStatus.error.message ?? 'Unavailable',
+      status: 'down',
+    }];
+    return {
+      counts: summarizeStatuses(['down']),
+      services,
+      summary: 'Status API unavailable',
+    };
+  }
+
   const services = [
     serviceGroup({
       key: 'airgradient',

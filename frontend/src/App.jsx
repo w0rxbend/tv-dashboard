@@ -76,6 +76,7 @@ export default function App() {
               daylight={resources.daylight}
               events={resources.events}
               reminders={resources.reminders}
+              systemStatus={resources.systemStatus}
             />
           </div>
         </div>

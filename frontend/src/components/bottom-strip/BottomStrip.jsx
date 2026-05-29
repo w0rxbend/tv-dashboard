@@ -20,6 +20,7 @@ export default function BottomStrip(props) {
   const insights = optionalResource(props.insights);
   const location = optionalResource(props.location);
   const remindersResource = optionalResource(props.reminders);
+  const systemStatus = optionalResource(props.systemStatus);
   const weather = optionalResource(props.weather);
 
   const insightList = () => insights.latest?.insights ?? [];
@@ -58,6 +59,7 @@ export default function BottomStrip(props) {
           events={events}
           reminders={remindersResource}
           insights={insights}
+          systemStatus={systemStatus}
         />
       </div>
 

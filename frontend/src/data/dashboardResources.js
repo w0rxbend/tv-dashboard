@@ -8,6 +8,7 @@ import {
   fetchInsights,
   fetchLocation,
   fetchReminders,
+  fetchStatus,
   fetchWeather,
   POLL,
 } from '../api';
@@ -22,6 +23,7 @@ export function createDashboardResources() {
     insights:           createPolledResource(fetchInsights,           { interval: POLL.INSIGHTS }),
     location:           createPolledResource(fetchLocation,           { interval: POLL.LOCATION }),
     reminders:          createPolledResource(fetchReminders,          { interval: POLL.REMINDERS }),
+    systemStatus:       createPolledResource(fetchStatus,             { interval: POLL.STATUS }),
     weather:            createPolledResource(fetchWeather,            { interval: POLL.WEATHER }),
   };
 }

@@ -221,6 +221,7 @@ All endpoints live under `/api/v1/`. The backend auto-generates a full OpenAPI 3
 | GET | `/api/v1/reminders` | Reminder list |
 | GET | `/api/v1/daylight` | Sunrise, sunset, progress, day length |
 | GET | `/api/v1/insights` | AI-generated home environment insights |
+| GET | `/api/v1/status` | Dashboard dependency health for Weather, AirGradient, Calendar, reminders, and insights |
 | GET | `/api/v1/devices` | Sensor mesh online status + latency |
 | GET | `/api/v1/energy` | Consumption, solar generation, grid import |
 
@@ -238,6 +239,7 @@ POLL.INDOOR_CLIMATE = 60_000    // 1 min
 POLL.INSIGHTS       = 300_000   // 5 min
 POLL.WEATHER        = 600_000   // 10 min
 POLL.LOCATION       = 600_000   // 10 min
+POLL.STATUS         = 60_000    // 1 min
 POLL.EVENTS         = 600_000   // 10 min
 POLL.REMINDERS      = 600_000   // 10 min
 POLL.DAYLIGHT       = 86_400_000 // 24 h — sun times don't change intra-day
