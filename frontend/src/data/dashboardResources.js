@@ -1,11 +1,25 @@
-import { createPolling } from './createPolling';
-import { fetchWeather, fetchAirQuality, fetchEvents, fetchReminders, POLL } from '../api';
+import { createPolledResource } from './createPolledResource';
+import {
+  fetchAirQuality,
+  fetchAirQualityReadings,
+  fetchDaylight,
+  fetchEvents,
+  fetchIndoorClimate,
+  fetchInsights,
+  fetchReminders,
+  fetchWeather,
+  POLL,
+} from '../api';
 
 export function createDashboardResources() {
   return {
-    weather:    createPolling(fetchWeather,    { interval: POLL.WEATHER }),
-    airQuality: createPolling(fetchAirQuality, { interval: POLL.AIR_QUALITY }),
-    events:     createPolling(fetchEvents,     { interval: POLL.EVENTS }),
-    reminders:  createPolling(fetchReminders,  { interval: POLL.REMINDERS }),
+    airQuality:         createPolledResource(fetchAirQuality,         { interval: POLL.AIR_QUALITY }),
+    airQualityReadings: createPolledResource(fetchAirQualityReadings, { interval: POLL.AIR_QUALITY }),
+    daylight:           createPolledResource(fetchDaylight,           { interval: POLL.DAYLIGHT }),
+    events:             createPolledResource(fetchEvents,             { interval: POLL.EVENTS }),
+    indoorClimate:      createPolledResource(fetchIndoorClimate,      { interval: POLL.INDOOR_CLIMATE }),
+    insights:           createPolledResource(fetchInsights,           { interval: POLL.INSIGHTS }),
+    reminders:          createPolledResource(fetchReminders,          { interval: POLL.REMINDERS }),
+    weather:            createPolledResource(fetchWeather,            { interval: POLL.WEATHER }),
   };
 }

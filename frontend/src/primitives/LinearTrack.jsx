@@ -13,6 +13,7 @@ export function LinearTrack(props) {
       aria-valuemax={props.max ?? 100}
       aria-valuenow={Math.min(props.max ?? 100, Math.max(props.min ?? 0, props.value))}
       aria-label={props.label ?? 'Reading level'}
+      aria-valuetext={props.valueText}
       style={{ color: props.color, 'margin-top': '6px' }}
     >
       <div class="linear-fill" style={{ width: pct() }}/>

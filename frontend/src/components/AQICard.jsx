@@ -1,41 +1,39 @@
-import { createMemo } from 'solid-js';
-import { MS, Sparkline, RadialGauge, CardError } from '../primitives';
-import { createPolling } from '../data/createPolling';
-import { fetchAirQuality, POLL } from '../api';
+import { Sparkline, RadialGauge, CardError } from '../primitives';
+import { optionalResource } from '../data/emptyResource';
 
 export default function AQICard(props) {
-  const aq = props.airQuality ?? createPolling(fetchAirQuality, { interval: POLL.AIR_QUALITY });
+  const airQuality = optionalResource(props.airQuality);
 
-  const data    = () => aq.latest;
-  const aqiInt  = () => data()?.aqi ?? 0;
-  const cat     = () => data()?.category ?? { color: '#B4C5FF', container: 'var(--md-primary-container)', on: 'var(--md-on-primary-container)', name: '…' };
-  const sparks  = () => data()?.sparklines;
+  const data = () => airQuality.latest;
+  const aqiValue = () => data()?.aqi ?? 0;
+  const category = () => data()?.category ?? { color: '#B4C5FF', container: 'var(--md-primary-container)', on: 'var(--md-on-primary-container)', name: '…' };
+  const sparklines = () => data()?.sparklines;
 
   return (
     <article class="card card-xl aqi-hero" aria-label="Air Quality Index">
-      <CardError error={aq.error}/>
+      <CardError error={airQuality.error}/>
       {/* Decorative M3 shape blob */}
       <svg class="shape-blob" style={{ right: '-60px', top: '-60px', width: '280px', height: '280px' }} viewBox="0 0 200 200" aria-hidden="true">
-        <path d="M 100 0 C 160 0 200 40 200 100 C 200 160 160 200 100 200 C 40 200 0 160 0 100 C 0 40 40 0 100 0 Z" fill={cat().color} opacity="0.35"/>
+        <path d="M 100 0 C 160 0 200 40 200 100 C 200 160 160 200 100 200 C 40 200 0 160 0 100 C 0 40 40 0 100 0 Z" fill={category().color} opacity="0.35"/>
       </svg>
 
       {/* Radial gauge */}
       <div class="aqi-gauge-wrap">
-        <RadialGauge value={aqiInt()} max={200} size={320} color={cat().color}/>
+        <RadialGauge value={aqiValue()} max={200} size={320} color={category().color}/>
         <div class="aqi-gauge-center">
           <div style={{ display: 'flex', 'flex-direction': 'column', 'align-items': 'center', gap: '4px' }}>
             <span class="t-label-md muted" style={{ opacity: 0.85 }}>US AQI · INDOOR</span>
             <span
               class="t-display-lg t-num"
-              style={{ color: cat().color, 'font-weight': 300, 'letter-spacing': '-0.05em', 'text-shadow': `0 0 30px ${cat().color}66` }}
+              style={{ color: category().color, 'font-weight': 300, 'letter-spacing': '-0.05em', 'text-shadow': `0 0 30px ${category().color}66` }}
               aria-live="polite"
-              aria-label={`AQI ${aqiInt()}`}
+              aria-label={`AQI ${aqiValue()}`}
             >
-              {aqiInt() || '—'}
+              {aqiValue() || '—'}
             </span>
-            <span class="chip" style={{ background: cat().container, color: cat().on, 'margin-top': '2px' }}>
-              <span style={{ width: '8px', height: '8px', 'border-radius': '50%', background: cat().color, 'box-shadow': `0 0 8px ${cat().color}aa` }} aria-hidden="true"/>
-              {cat().name} air quality
+            <span class="chip" style={{ background: category().container, color: category().on, 'margin-top': '2px' }}>
+              <span style={{ width: '8px', height: '8px', 'border-radius': '50%', background: category().color, 'box-shadow': `0 0 8px ${category().color}aa` }} aria-hidden="true"/>
+              {category().name} air quality
             </span>
           </div>
         </div>
@@ -54,22 +52,22 @@ export default function AQICard(props) {
           <div class="aqi-metric">
             <span class="lbl">PM<sub style={{ 'font-size': '9px' }}>2.5</sub></span>
             <span><span class="v">{data()?.pm25?.toFixed(1) ?? '—'}</span><span class="u">µg/m³</span></span>
-            {sparks() && <Sparkline data={sparks().pm25} width={140} height={26} color="#FFB59A"/>}
+            {sparklines() && <Sparkline data={sparklines().pm25} width={140} height={26} color="#FFB59A"/>}
           </div>
           <div class="aqi-metric">
             <span class="lbl">NOx</span>
             <span><span class="v">{data()?.nox ?? '—'}</span><span class="u">index</span></span>
-            {sparks() && <Sparkline data={sparks().nox} width={140} height={26} color="#FFD68A"/>}
+            {sparklines() && <Sparkline data={sparklines().nox} width={140} height={26} color="#FFD68A"/>}
           </div>
           <div class="aqi-metric">
             <span class="lbl">CO<sub style={{ 'font-size': '9px' }}>2</sub></span>
             <span><span class="v">{data()?.co2 ?? '—'}</span><span class="u">ppm</span></span>
-            {sparks() && <Sparkline data={sparks().co2} width={140} height={26} color="#82DBA6"/>}
+            {sparklines() && <Sparkline data={sparklines().co2} width={140} height={26} color="#82DBA6"/>}
           </div>
           <div class="aqi-metric">
             <span class="lbl">tVOC</span>
             <span><span class="v">{data()?.voc ?? '—'}</span><span class="u">index</span></span>
-            {sparks() && <Sparkline data={sparks().voc} width={140} height={26} color="#D0BCFF"/>}
+            {sparklines() && <Sparkline data={sparklines().voc} width={140} height={26} color="#D0BCFF"/>}
           </div>
         </div>
       </div>

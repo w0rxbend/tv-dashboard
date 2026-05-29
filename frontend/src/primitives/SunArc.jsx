@@ -1,5 +1,7 @@
 import { createMemo, mergeProps } from 'solid-js';
 
+const nextSunArcId = (() => { let id = 0; return () => `sun-arc-${++id}`; })();
+
 /**
  * Elliptical sunrise → sunset arc.
  * Progress 0 = puck at sunrise (left), 0.5 = zenith, 1 = sunset (right).
@@ -10,6 +12,7 @@ export function SunArc(props) {
     { width: 360, height: 112, progress: 0.55, sunrise: '05:24', sunset: '21:42' },
     props,
   );
+  const gradientId = nextSunArcId();
 
   const arc = createMemo(() => {
     const { width: w, height: h, progress } = merged;
@@ -45,7 +48,7 @@ export function SunArc(props) {
       role="img"
     >
       <defs>
-        <linearGradient id="sunGrad" x1="0" x2="1">
+        <linearGradient id={gradientId} x1="0" x2="1">
           <stop offset="0%"   stop-color="#FFB59A"/>
           <stop offset="55%"  stop-color="#FFD68A"/>
           <stop offset="100%" stop-color="#82DBA6"/>
@@ -61,7 +64,7 @@ export function SunArc(props) {
       {/* Full arc track */}
       <path d={arc().arcPath} fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 6"/>
       {/* Elapsed arc */}
-      <path d={arc().fillPath} fill="none" stroke="url(#sunGrad)" stroke-width="3" stroke-linecap="round"/>
+      <path d={arc().fillPath} fill="none" stroke={`url(#${gradientId})`} stroke-width="3" stroke-linecap="round"/>
       {/* Sun puck */}
       <circle cx={arc().px} cy={arc().py} r="11" fill="#FFD68A" style={{ filter: 'drop-shadow(0 0 12px #FFD68Acc)' }}/>
       <circle cx={arc().px} cy={arc().py} r="4"  fill="#fff"/>

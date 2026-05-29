@@ -1,11 +1,10 @@
 import { For } from 'solid-js';
 import WeatherIcon from './WeatherIcon';
 import { CardError } from '../primitives';
-import { createPolling } from '../data/createPolling';
-import { fetchWeather, POLL } from '../api';
+import { optionalResource } from '../data/emptyResource';
 
 export default function WeatherCard(props) {
-  const weather = props.weather ?? createPolling(fetchWeather, { interval: POLL.WEATHER });
+  const weather = optionalResource(props.weather);
 
   const current  = () => weather.latest?.current;
   const forecast = () => weather.latest?.forecast ?? [];
@@ -22,7 +21,7 @@ export default function WeatherCard(props) {
       <div class="wx-now">
         <div>
           <div class="t-label-md" style={{ opacity: 0.7 }}>
-            OUTSIDE · {(current()?.location?.city ?? 'STOCKHOLM').toUpperCase()}
+            OUTSIDE · {(current()?.location?.city ?? '—').toUpperCase()}
           </div>
           <div style={{ display: 'flex', 'align-items': 'flex-start', gap: '6px', 'margin-top': '4px' }}>
             <span class="t-display-md t-num" style={{ 'font-weight': 300, 'letter-spacing': '-0.04em' }}>

@@ -11,6 +11,14 @@ import { createDashboardResources } from './data/dashboardResources';
 const DESIGN_W = 1920;
 const DESIGN_H = 1080;
 
+function stageScale() {
+  if (typeof window === 'undefined') return { x: 1, y: 1 };
+  return {
+    x: window.innerWidth / DESIGN_W,
+    y: window.innerHeight / DESIGN_H,
+  };
+}
+
 function Background() {
   return (
     <div aria-hidden="true">
@@ -23,13 +31,11 @@ function Background() {
 
 export default function App() {
   const resources = createDashboardResources();
-  const [scale, setScale] = createSignal({
-    x: window.innerWidth  / DESIGN_W,
-    y: window.innerHeight / DESIGN_H,
-  });
+  const [scale, setScale] = createSignal(stageScale());
 
   onMount(() => {
-    const fit = () => setScale({ x: window.innerWidth / DESIGN_W, y: window.innerHeight / DESIGN_H });
+    const fit = () => setScale(stageScale());
+    fit();
     window.addEventListener('resize', fit);
     onCleanup(() => window.removeEventListener('resize', fit));
   });
@@ -49,11 +55,18 @@ export default function App() {
           </div>
           <div class="area-aqi"><AQICard airQuality={resources.airQuality}/></div>
           <div class="area-wx"><WeatherCard weather={resources.weather}/></div>
-          <div class="area-agenda"><AgendaCard events={resources.events}/></div>
-          <div class="area-chart"><ChartCard/></div>
-          <div class="area-indoor"><IndoorCard/></div>
+          <div class="area-agenda">
+            <AgendaCard events={resources.events} daylight={resources.daylight}/>
+          </div>
+          <div class="area-chart">
+            <ChartCard readings={resources.airQualityReadings}/>
+          </div>
+          <div class="area-indoor">
+            <IndoorCard indoorClimate={resources.indoorClimate}/>
+          </div>
           <div class="area-bottom">
             <BottomStrip
+              insights={resources.insights}
               weather={resources.weather}
               airQuality={resources.airQuality}
               events={resources.events}

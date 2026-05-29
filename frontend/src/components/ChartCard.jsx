@@ -1,7 +1,6 @@
 import { createMemo, For } from 'solid-js';
 import { LineChart, CardError } from '../primitives';
-import { createPolling } from '../data/createPolling';
-import { fetchAirQualityReadings, POLL } from '../api';
+import { optionalResource } from '../data/emptyResource';
 
 const TELEMETRY_SERIES = [
   { id: 'pm25', label: 'PM2.5', color: '#FFB59A', unit: 'µg/m³' },
@@ -10,9 +9,22 @@ const TELEMETRY_SERIES = [
   { id: 'nox',  label: 'NOx',   color: '#FFD68A', unit: 'index' },
 ];
 
-export default function ChartCard() {
-  const readings = createPolling(fetchAirQualityReadings, { interval: POLL.AIR_QUALITY });
+const average = (values) => {
+  if (!Array.isArray(values) || values.length === 0) return null;
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+};
 
+const maxValue = (values) => {
+  if (!Array.isArray(values) || values.length === 0) return null;
+  return Math.max(...values);
+};
+
+const formatNumber = (value, digits) => (
+  Number.isFinite(value) ? value.toFixed(digits) : '—'
+);
+
+export default function ChartCard(props) {
+  const readings = optionalResource(props.readings);
   const raw = () => readings.latest?.series;
 
   const series = createMemo(() => {
@@ -26,12 +38,10 @@ export default function ChartCard() {
     ];
   });
 
-  const avg = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
-
-  const peakPm25 = createMemo(() => raw() ? Math.max(...raw().pm25).toFixed(1) : '—');
-  const peakCo2  = createMemo(() => raw() ? Math.max(...raw().co2).toFixed(0) : '—');
-  const avgVoc   = createMemo(() => raw() ? avg(raw().voc).toFixed(0) : '—');
-  const avgNox   = createMemo(() => raw() ? avg(raw().nox).toFixed(0) : '—');
+  const peakPm25 = createMemo(() => formatNumber(maxValue(raw()?.pm25), 1));
+  const peakCo2 = createMemo(() => formatNumber(maxValue(raw()?.co2), 0));
+  const avgVoc = createMemo(() => formatNumber(average(raw()?.voc), 0));
+  const avgNox = createMemo(() => formatNumber(average(raw()?.nox), 0));
 
   return (
     <article class="card card-lg chart-card" aria-label="Environmental telemetry">

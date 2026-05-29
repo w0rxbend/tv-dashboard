@@ -349,6 +349,48 @@
   flex-shrink: 0;
 }
 
+.bs-insight-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.bs-insight-copy {
+  min-width: 0;
+}
+
+.bs-insight-label {
+  opacity: 0.75;
+}
+
+.bs-insight-title {
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.bs-insight-sub {
+  margin-top: 2px;
+  opacity: 0.8;
+}
+
+.bs-progress-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.bs-progress-dots span {
+  height: 4px;
+  flex: 1;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.16);
+  transition: background 400ms;
+}
+
+.bs-progress-dots span.active {
+  background: currentColor;
+}
+
 .status-cell {
   padding: 14px 16px;
   justify-content: stretch;

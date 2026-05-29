@@ -1,5 +1,5 @@
 /**
- * WeatherIcon — premium stroke-only SVG weather icons animated with GSAP.
+ * WeatherIcon — premium SVG weather icons animated with GSAP.
  *
  * Design language (based on references):
  *  • White cloud outline, no fill — clean line-icon aesthetic
@@ -31,6 +31,11 @@ const C = {
 function prefersReducedMotion() {
   return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 }
+
+const nextWeatherSvgId = (() => {
+  let id = 0;
+  return (prefix) => `${prefix}-${++id}`;
+})();
 
 // ─── Cloud paths ──────────────────────────────────────────────────────────────
 // Constructed with cubic beziers so the two humps have a clear visible valley.
@@ -97,6 +102,7 @@ function Flake({ cx, cy, arm = 7 }) {
 
 function ClearIcon() {
   let sunG, glowC;
+  const glowId = nextWeatherSvgId('cl-glow');
   onMount(() => {
     if (prefersReducedMotion()) return;
 
@@ -110,7 +116,7 @@ function ClearIcon() {
   return (
     <>
       <defs>
-        <radialGradient id="cl-glow" cx="50%" cy="50%" r="50%">
+        <radialGradient id={glowId} cx="50%" cy="50%" r="50%">
           <stop offset="0%"   stop-color="#FFD840" stop-opacity="0.38"/>
           <stop offset="60%"  stop-color="#FFAA00" stop-opacity="0.14"/>
           <stop offset="100%" stop-color="#FF8800" stop-opacity="0"/>
@@ -118,7 +124,7 @@ function ClearIcon() {
       </defs>
 
       {/* Ambient glow */}
-      <circle ref={glowC} cx="60" cy="60" r="54" fill="url(#cl-glow)" opacity="0.8"/>
+      <circle ref={glowC} cx="60" cy="60" r="54" fill={`url(#${glowId})`} opacity="0.8"/>
 
       {/* Rotating group */}
       <g ref={sunG} fill="none">
@@ -259,6 +265,7 @@ function HeavyRainIcon() {
 
 function ThunderstormIcon() {
   let cloudP, boltG, bloom;
+  const glowId = nextWeatherSvgId('th-glow');
 
   onMount(() => {
     if (prefersReducedMotion()) return;
@@ -279,7 +286,7 @@ function ThunderstormIcon() {
   return (
     <>
       <defs>
-        <filter id="th-glow" x="-40%" y="-40%" width="180%" height="180%">
+        <filter id={glowId} x="-40%" y="-40%" width="180%" height="180%">
           <feGaussianBlur stdDeviation="4" result="b"/>
           <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
         </filter>
@@ -291,7 +298,7 @@ function ThunderstormIcon() {
       <ellipse ref={bloom} cx="62" cy="93" rx="18" ry="12" fill={C.bolt} opacity="0.24"/>
 
       {/* Lightning bolt */}
-      <g ref={boltG} filter="url(#th-glow)">
+      <g ref={boltG} filter={`url(#${glowId})`}>
         <path d="M 70 70 L 52 94 L 64 92 L 46 116 L 76 90 L 64 92 Z"
               stroke={C.bolt} stroke-width="2.5" stroke-linejoin="round"
               fill={C.bolt} fill-opacity="0.9"/>

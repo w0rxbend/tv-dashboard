@@ -1,8 +1,7 @@
 import { For, Show, createMemo } from 'solid-js';
 import { ErrorState, SunArc } from '../primitives';
 import { useNow } from '../data';
-import { createPolling } from '../data/createPolling';
-import { fetchEvents, fetchDaylight, POLL } from '../api';
+import { optionalResource } from '../data/emptyResource';
 
 export default function AgendaCard(props) {
   const now = useNow(60_000); // update once per minute — enough for date header
@@ -13,8 +12,8 @@ export default function AgendaCard(props) {
     now().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()
   );
 
-  const events  = props.events ?? createPolling(fetchEvents, { interval: POLL.EVENTS });
-  const daylight = createPolling(fetchDaylight, { interval: POLL.DAYLIGHT });
+  const events = optionalResource(props.events);
+  const daylight = optionalResource(props.daylight);
 
   const eventList = () => events.latest?.events ?? [];
   const hasEvents = () => Boolean(events.latest);

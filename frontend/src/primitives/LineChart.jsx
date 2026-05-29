@@ -2,6 +2,7 @@ import { createMemo, For, Index, Show, mergeProps } from 'solid-js';
 import { normalizeChartSeries } from './lineChartModel';
 
 const X_LABELS = ['18:00', '21:00', '00:00', '03:00', 'NOW'];
+const nextChartId = (() => { let id = 0; return () => `lc${++id}`; })();
 
 /**
  * Multi-series area+line chart.
@@ -15,6 +16,7 @@ export function LineChart(props) {
     { width: 720, height: 220, padding: { t: 12, r: 12, b: 24, l: 36 } },
     props,
   );
+  const gradientPrefix = nextChartId();
 
   const computed = createMemo(() => {
     const { series, width, height, padding: p } = merged;
@@ -55,7 +57,7 @@ export function LineChart(props) {
     const seriesPaths = validSeries.map((s, i) => {
       const line = buildLine(s.data);
       return {
-        gid: `ar${i}`,
+        gid: `${gradientPrefix}-ar${i}`,
         color: s.color,
         line,
         area: `${line} L ${xAt(s.data.length - 1)} ${p.t + inner.h} L ${xAt(0)} ${p.t + inner.h} Z`,
@@ -114,12 +116,12 @@ export function LineChart(props) {
         {(s, i) => (
           <g>
             <defs>
-              <linearGradient id={`ar${i}`} x1="0" x2="0" y1="0" y2="1">
+              <linearGradient id={s().gid} x1="0" x2="0" y1="0" y2="1">
                 <stop offset="0%"   stop-color={s().color} stop-opacity="0.30"/>
                 <stop offset="100%" stop-color={s().color} stop-opacity="0"/>
               </linearGradient>
             </defs>
-            <path d={s().area} fill={`url(#ar${i})`}/>
+            <path d={s().area} fill={`url(#${s().gid})`}/>
             <path class="spark-path" d={s().line} fill="none" stroke={s().color} stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
             <circle cx={s().dotX} cy={s().dotY} r="4" fill={s().color}/>
             <circle cx={s().dotX} cy={s().dotY} r="8" fill={s().color} opacity="0.18"/>
