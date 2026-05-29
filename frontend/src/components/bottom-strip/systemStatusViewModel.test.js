@@ -49,3 +49,72 @@ test('createSystemStatusModel prefers explicit backend status reports', () => {
   assert.equal(model.counts.down, 2);
   assert.equal(model.summary, '2 feeds unavailable');
 });
+
+test('createSystemStatusModel maps the backend dependency status response', () => {
+  const model = createSystemStatusModel({
+    systemStatus: {
+      latest: {
+        status: 'down',
+        checked_at: '2026-05-29T15:29:16.165Z',
+        services: [
+          {
+            key: 'airgradient',
+            label: 'AirGradient',
+            status: 'down',
+            message: 'AirGradient is unreachable',
+            checked_at: '2026-05-29T15:29:16.165Z',
+            details: { code: 'airgradient_upstream_error' },
+          },
+          {
+            key: 'weather',
+            label: 'Weather',
+            status: 'operational',
+            message: 'Open-Meteo reachable',
+            checked_at: '2026-05-29T15:29:16.165Z',
+          },
+          {
+            key: 'calendar',
+            label: 'Calendar',
+            status: 'not_configured',
+            message: 'Google Calendar is not configured',
+            checked_at: '2026-05-29T15:29:16.165Z',
+            details: { code: 'calendar_not_configured' },
+          },
+          {
+            key: 'reminders',
+            label: 'Reminders',
+            status: 'operational',
+            message: 'Local reminders available',
+            checked_at: '2026-05-29T15:29:16.165Z',
+          },
+          {
+            key: 'insights',
+            label: 'Insights',
+            status: 'operational',
+            message: 'Local insights available',
+            checked_at: '2026-05-29T15:29:16.165Z',
+          },
+        ],
+      },
+    },
+  });
+
+  assert.equal(model.summary, '2 feeds unavailable');
+  assert.equal(model.counts.live, 3);
+  assert.equal(model.counts.total, 5);
+  assert.equal(model.services.find((service) => service.key === 'weather').status, 'ok');
+  assert.equal(model.services.find((service) => service.key === 'calendar').message, 'Google Calendar is not configured');
+});
+
+test('createSystemStatusModel shows a single status API loading row while backend status is pending', () => {
+  const model = createSystemStatusModel({
+    systemStatus: {},
+    airQuality: {},
+    weather: {},
+  });
+
+  assert.equal(model.services.length, 1);
+  assert.equal(model.services[0].key, 'status-api');
+  assert.equal(model.services[0].status, 'checking');
+  assert.equal(model.summary, 'Checking status API');
+});

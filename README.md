@@ -19,7 +19,7 @@ backend/    Hono + Zod/OpenAPI — REST endpoints, Swagger UI built-in
 | Agenda | Today's calendar, sunrise/sunset arc | 10 min / 24 h |
 | Telemetry Chart | AirGradient PM2.5/CO₂/TVOC/NOx history | 10 s |
 | Indoor Climate | Temperature, humidity, CO₂, VOC + sparklines | 1 min |
-| Bottom Strip | Insights · Reminders · System status · Wind · UV | 5–10 min |
+| Bottom Strip | Insights · Reminders · System status · Wind · UV | 5 s–10 min |
 
 The display is **design-fixed at 1920×1080** and scaled independently on each axis with `transform: scale(sx, sy)`, so it renders correctly on any screen size without reflowing.
 
@@ -239,7 +239,7 @@ POLL.INDOOR_CLIMATE = 60_000    // 1 min
 POLL.INSIGHTS       = 300_000   // 5 min
 POLL.WEATHER        = 600_000   // 10 min
 POLL.LOCATION       = 600_000   // 10 min
-POLL.STATUS         = 60_000    // 1 min
+POLL.STATUS         = 5_000     // 5 s
 POLL.EVENTS         = 600_000   // 10 min
 POLL.REMINDERS      = 600_000   // 10 min
 POLL.DAYLIGHT       = 86_400_000 // 24 h — sun times don't change intra-day

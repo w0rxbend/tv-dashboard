@@ -63,11 +63,30 @@ function unavailable(key: string, label: string, err: unknown): SystemServiceSta
 }
 
 async function runCheck(service: ServiceCheck): Promise<SystemServiceStatus> {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+  const timeout = new Promise<SystemServiceStatus>((resolve) => {
+    timeoutId = setTimeout(() => {
+      resolve({
+        key: service.key,
+        label: service.label,
+        status: 'down',
+        message: `${service.label} status check timed out`,
+        checked_at: checkedAt(),
+        details: { code: 'status_check_timeout' },
+      });
+    }, config.status.checkTimeoutMs);
+  });
+
   try {
-    const result = await service.check();
+    const result = await Promise.race([
+      service.check(),
+      timeout,
+    ]);
     return result ?? operational(service.key, service.label);
   } catch (err) {
     return unavailable(service.key, service.label, err);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
   }
 }
 

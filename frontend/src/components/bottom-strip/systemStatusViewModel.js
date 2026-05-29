@@ -82,6 +82,21 @@ export function createSystemStatusModel(resources) {
     return { counts, services, summary };
   }
 
+  if (resources.systemStatus && !resources.systemStatus.error) {
+    const services = [{
+      icon: 'hub',
+      key: 'status-api',
+      label: 'Status API',
+      message: 'Checking',
+      status: 'checking',
+    }];
+    return {
+      counts: summarizeStatuses(['checking']),
+      services,
+      summary: 'Checking status API',
+    };
+  }
+
   if (resources.systemStatus?.error && resources.systemStatus.error?.code !== 'cancelled') {
     const services = [{
       icon: 'hub',

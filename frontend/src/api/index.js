@@ -14,6 +14,7 @@ export { ApiError }                                  from './client.js';
  *
  * Chosen to balance data freshness vs. request volume:
  *  - Sensor telemetry: aggressive (10 s) — values change rapidly
+ *  - Dependency status: frequent (5 s) — operators need quick recovery/failure feedback
  *  - Climate: moderate (1 min) — slow-moving
  *  - Calendar data: lazy (10 min) — rarely changes mid-session
  *  - Daylight: once per day — sun times don't change intra-day
@@ -27,5 +28,5 @@ export const POLL = Object.freeze({
   EVENTS:         600_000,     // 10 min
   REMINDERS:      600_000,     // 10 min
   DAYLIGHT:       86_400_000,  // 24 h
-  STATUS:         60_000,      // 1 min
+  STATUS:         5_000,       // 5 s
 });

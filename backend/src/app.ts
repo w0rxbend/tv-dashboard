@@ -75,7 +75,7 @@ app.doc('/openapi.json', {
       '| Events | `GET /api/v1/events` | 10 min |',
       '| Reminders | `GET /api/v1/reminders` | 10 min |',
       '| Daylight | `GET /api/v1/daylight` | once/day |',
-      '| Dependency status | `GET /api/v1/status` | 1 min |',
+      '| Dependency status | `GET /api/v1/status` | 5 s |',
     ].join('\n'),
   },
   tags: [

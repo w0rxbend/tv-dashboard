@@ -134,4 +134,7 @@ export const config = {
     rangeWindow: requirePattern('AIRGRADIENT_RANGE_WINDOW', '12h', /^\d+[hd]$/),
     rangeStep: requirePattern('AIRGRADIENT_RANGE_STEP', '15m', /^\d+[smh]$/),
   },
+  status: {
+    checkTimeoutMs: requireInteger('STATUS_CHECK_TIMEOUT_MS', 3_000, { min: 100, max: 30_000 }),
+  },
 };
