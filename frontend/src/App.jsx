@@ -39,13 +39,27 @@ export default function App() {
       <div class="stage" style={{ transform: `scale(${scale().x}, ${scale().y})` }}>
         <Background/>
         <div class="dash">
-          <div class="area-topbar"><TopBar devices={resources.devices}/></div>
-          <div class="area-aqi"><AQICard/></div>
+          <div class="area-topbar">
+            <TopBar
+              airQuality={resources.airQuality}
+              weather={resources.weather}
+              events={resources.events}
+              reminders={resources.reminders}
+            />
+          </div>
+          <div class="area-aqi"><AQICard airQuality={resources.airQuality}/></div>
           <div class="area-wx"><WeatherCard weather={resources.weather}/></div>
-          <div class="area-agenda"><AgendaCard/></div>
+          <div class="area-agenda"><AgendaCard events={resources.events}/></div>
           <div class="area-chart"><ChartCard/></div>
           <div class="area-indoor"><IndoorCard/></div>
-          <div class="area-bottom"><BottomStrip devices={resources.devices} weather={resources.weather}/></div>
+          <div class="area-bottom">
+            <BottomStrip
+              weather={resources.weather}
+              airQuality={resources.airQuality}
+              events={resources.events}
+              reminders={resources.reminders}
+            />
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
-import { makeSeries } from '../lib/mock.js';
-import type { OpenMeteoAirQualityResponse } from './open-meteo.js';
+import type { AirGradientCurrent, AirGradientRange } from './airgradient.js';
+import { mapAirGradientSnapshot, pm25ToUsAqi, rangeValues } from './airgradient-view.js';
 
 function aqiCategory(aqi: number) {
   if (aqi <= 50)  return { name: 'Good',       color: '#82DBA6', container: 'var(--md-good-container)',      on: 'var(--md-on-good-container)' };
@@ -17,25 +17,45 @@ function aqiMessage(aqi: number): string {
   return                 'Hazardous — avoid all outdoor activities';
 }
 
-export function mapAirQualityView(raw: OpenMeteoAirQualityResponse) {
-  const aqi = raw.current.us_aqi;
-  const pm25 = +raw.current.pm2_5.toFixed(1);
-  const pm10 = +raw.current.pm10.toFixed(1);
+export function mapAirQualityView(
+  current: AirGradientCurrent,
+  ranges: { pm25: AirGradientRange; co2: AirGradientRange; voc: AirGradientRange; nox: AirGradientRange },
+) {
+  const snapshot = mapAirGradientSnapshot(current);
+  const aqi = pm25ToUsAqi(snapshot.pm25);
   const category = aqiCategory(aqi);
 
   return {
     aqi,
     category,
-    pm25,
-    pm10,
-    co2:     612,   // indoor sensor — mock until real hardware integration
-    voc:     0.42,  // indoor sensor — mock until real hardware integration
+    pm25: snapshot.pm25,
+    co2:  snapshot.co2,
+    voc:  snapshot.voc,
+    nox:  snapshot.nox,
     message: aqiMessage(aqi),
     sparklines: {
-      pm25: makeSeries(28, pm25,  3,  9),
-      pm10: makeSeries(28, pm10,  5,  15),
-      co2:  makeSeries(28, 612,   80, 27),
-      voc:  makeSeries(28, 0.42, 0.15, 31),
+      pm25: rangeValues(ranges.pm25),
+      co2:  rangeValues(ranges.co2),
+      voc:  rangeValues(ranges.voc),
+      nox:  rangeValues(ranges.nox),
     },
+  };
+}
+
+export function mapAirQualityReadings(ranges: AirGradientRange[]) {
+  const [pm25, co2, voc, nox] = ranges;
+  const series = {
+    pm25: rangeValues(pm25),
+    co2:  rangeValues(co2),
+    voc:  rangeValues(voc),
+    nox:  rangeValues(nox),
+  };
+  const count = Math.max(series.pm25.length, series.co2.length, series.voc.length, series.nox.length);
+
+  return {
+    window:     pm25.range,
+    resolution: pm25.step,
+    count,
+    series,
   };
 }

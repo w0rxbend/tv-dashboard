@@ -3,8 +3,8 @@ import { MS, Sparkline, RadialGauge, CardError } from '../primitives';
 import { createPolling } from '../data/createPolling';
 import { fetchAirQuality, POLL } from '../api';
 
-export default function AQICard() {
-  const aq = createPolling(fetchAirQuality, { interval: POLL.AIR_QUALITY });
+export default function AQICard(props) {
+  const aq = props.airQuality ?? createPolling(fetchAirQuality, { interval: POLL.AIR_QUALITY });
 
   const data    = () => aq.latest;
   const aqiInt  = () => data()?.aqi ?? 0;
@@ -57,9 +57,9 @@ export default function AQICard() {
             {sparks() && <Sparkline data={sparks().pm25} width={140} height={26} color="#FFB59A"/>}
           </div>
           <div class="aqi-metric">
-            <span class="lbl">PM<sub style={{ 'font-size': '9px' }}>10</sub></span>
-            <span><span class="v">{data()?.pm10?.toFixed(1) ?? '—'}</span><span class="u">µg/m³</span></span>
-            {sparks() && <Sparkline data={sparks().pm10} width={140} height={26} color="#FFD68A"/>}
+            <span class="lbl">NOx</span>
+            <span><span class="v">{data()?.nox ?? '—'}</span><span class="u">index</span></span>
+            {sparks() && <Sparkline data={sparks().nox} width={140} height={26} color="#FFD68A"/>}
           </div>
           <div class="aqi-metric">
             <span class="lbl">CO<sub style={{ 'font-size': '9px' }}>2</sub></span>
@@ -68,7 +68,7 @@ export default function AQICard() {
           </div>
           <div class="aqi-metric">
             <span class="lbl">tVOC</span>
-            <span><span class="v">{data()?.voc?.toFixed(2) ?? '—'}</span><span class="u">mg/m³</span></span>
+            <span><span class="v">{data()?.voc ?? '—'}</span><span class="u">index</span></span>
             {sparks() && <Sparkline data={sparks().voc} width={140} height={26} color="#D0BCFF"/>}
           </div>
         </div>

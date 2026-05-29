@@ -1,9 +1,7 @@
 import { createRoute, z } from '@hono/zod-openapi';
 import type { OpenAPIHono, RouteHandler } from '@hono/zod-openapi';
-import { makeSeries } from '../lib/mock.js';
-import { config } from '../config.js';
-import { fetchAirQualityFromAPI } from '../services/open-meteo.js';
-import { mapAirQualityView } from '../services/air-quality-view.js';
+import { airGradient } from '../services/airgradient.js';
+import { mapAirQualityView, mapAirQualityReadings } from '../services/air-quality-view.js';
 import { upstreamError } from '../lib/upstream-error.js';
 import { upstreamErrorResponses } from '../lib/api-error.js';
 
@@ -24,15 +22,15 @@ const AirQualitySchema = z.object({
   aqi:      z.number().openapi({ example: 42, description: 'US EPA AQI (0–500)' }),
   category: AqiCategorySchema,
   pm25:     z.number().openapi({ example: 8.2, description: 'PM2.5 µg/m³' }),
-  pm10:     z.number().openapi({ example: 14.6, description: 'PM10 µg/m³' }),
-  co2:      z.number().openapi({ example: 612, description: 'CO₂ ppm (indoor sensor)' }),
-  voc:      z.number().openapi({ example: 0.42, description: 'tVOC mg/m³ (indoor sensor)' }),
+  co2:      z.number().openapi({ example: 612, description: 'CO₂ ppm' }),
+  voc:      z.number().openapi({ example: 120, description: 'TVOC index' }),
+  nox:      z.number().openapi({ example: 1, description: 'NOx index' }),
   message:  z.string().openapi({ example: 'Air quality is Good' }),
   sparklines: z.object({
     pm25: SparklineSchema,
-    pm10: SparklineSchema,
     co2:  SparklineSchema,
     voc:  SparklineSchema,
+    nox:  SparklineSchema,
   }).openapi({ description: 'Historical trend data for each metric' }),
 }).openapi('AirQuality');
 
@@ -45,34 +43,16 @@ const ReadingsSchema = z.object({
   resolution: z.string().openapi({ example: '15min', description: 'Sample resolution' }),
   count:      z.number().openapi({ example: 48, description: 'Number of data points per channel' }),
   series: z.object({
-    pm03: z.array(z.number()),
-    pm1:  z.array(z.number()),
     pm25: z.array(z.number()),
-    pm10: z.array(z.number()),
-  }).openapi({ description: 'Time-ordered reading arrays per PM channel' }),
+    co2:  z.array(z.number()),
+    voc:  z.array(z.number()),
+    nox:  z.array(z.number()),
+  }).openapi({ description: 'Time-ordered reading arrays per metric' }),
 }).openapi('AirQualityReadings');
 
 const ReadingsResponseSchema = z.object({
   data: ReadingsSchema,
 }).openapi('AirQualityReadingsResponse');
-
-// ─── Mock readings (indoor PM history — no real-time source yet) ──────────────
-
-function getReadingsMock() {
-  return {
-    data: {
-      window:     '12h',
-      resolution: '15min',
-      count:      48,
-      series: {
-        pm03: makeSeries(48, 42, 16, 53),
-        pm1:  makeSeries(48, 18, 8,  61),
-        pm25: makeSeries(48, 9,  4,  47),
-        pm10: makeSeries(48, 16, 6,  73),
-      },
-    },
-  };
-}
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
@@ -82,11 +62,11 @@ const getAirQualityRoute = createRoute({
   tags:        ['Air Quality'],
   summary:     'Get current air quality readings',
   description: [
-    'Returns current outdoor AQI and PM2.5/PM10 from Open-Meteo.',
+    'Returns current indoor AirGradient PM2.5, CO₂, TVOC, and NOx readings.',
     '',
-    'CO₂ and VOC are indoor sensor values (mock until a real indoor sensor is integrated).',
+    'US AQI is derived from the AirGradient PM2.5 concentration using EPA PM2.5 breakpoints.',
     '',
-    '**503** is returned when the upstream Open-Meteo API is unreachable.',
+    '**503** is returned when the AirGradient observability backend is unreachable.',
   ].join('\n'),
   responses: {
     200: {
@@ -101,32 +81,49 @@ const getReadingsRoute = createRoute({
   method:      'get',
   path:        '/v1/air-quality/readings',
   tags:        ['Air Quality'],
-  summary:     'Get historical PM readings',
-  description: 'Returns 48-point time-series data for PM0.3, PM1, PM2.5, PM10 channels over the last 12 hours.',
+  summary:     'Get historical AirGradient readings',
+  description: 'Returns time-series data for PM2.5, CO₂, TVOC, and NOx channels over the configured AirGradient range.',
   responses: {
     200: {
       content:     { 'application/json': { schema: ReadingsResponseSchema } },
-      description: '48-point PM channel history',
+      description: 'AirGradient telemetry history',
     },
+    ...upstreamErrorResponses,
   },
 });
 
 // ─── Handlers ─────────────────────────────────────────────────────────────────
 
 const handleGetAirQuality: RouteHandler<typeof getAirQualityRoute> = async (c) => {
-  const { latitude, longitude } = config.location;
-
-  let raw;
   try {
-    raw = await fetchAirQualityFromAPI(latitude, longitude);
+    const [current, pm25, co2, voc, nox] = await Promise.all([
+      airGradient.current(),
+      airGradient.range('pm25'),
+      airGradient.range('co2'),
+      airGradient.range('voc'),
+      airGradient.range('nox'),
+    ]);
+    return c.json({ data: mapAirQualityView(current, { pm25, co2, voc, nox }) });
   } catch (err) {
     return upstreamError(err);
   }
+};
 
-  return c.json({ data: mapAirQualityView(raw) });
+const handleGetReadings: RouteHandler<typeof getReadingsRoute> = async (c) => {
+  try {
+    const ranges = await Promise.all([
+      airGradient.range('pm25'),
+      airGradient.range('co2'),
+      airGradient.range('voc'),
+      airGradient.range('nox'),
+    ]);
+    return c.json({ data: mapAirQualityReadings(ranges) });
+  } catch (err) {
+    return upstreamError(err);
+  }
 };
 
 export function registerAirQualityRoutes(app: OpenAPIHono) {
   app.openapi(getAirQualityRoute, handleGetAirQuality);
-  app.openapi(getReadingsRoute,   (c) => c.json(getReadingsMock()));
+  app.openapi(getReadingsRoute,   handleGetReadings);
 }

@@ -36,17 +36,21 @@ The scale factors are updated on every `resize` event. `onCleanup` removes the l
 
 ### `TopBar` — `components/TopBar.jsx`
 
-**Data:** `fetchLocation` (once), `fetchDevices` (every 1 min), `useNow` (every 1 s)
+**Data:** `fetchLocation` (once), shared AirGradient/weather/calendar/reminder resources, `useNow` (every 1 s)
 
 Renders:
 - **Brand** — Aurora logo + wordmark
 - **Clock** — live HH:MM with animated seconds
-- **Status chips** — location label, sensor mesh summary
+- **Status chips** — location label, data feed summary
 
 ```jsx
-// Mesh status logic
-const meshOnline = () => devices.latest?.online === devices.latest?.total;
-const meshLabel  = () => `Mesh synced · ${d.online}/${d.total} sensors`;
+const feedCounts = () => summarizeStatuses([
+  resourceStatus(airQuality),
+  resourceStatus(weather),
+  resourceStatus(events),
+  resourceStatus(reminders),
+]);
+const feedLabel = () => `Feeds live · ${feedCounts().live}/${feedCounts().total}`;
 ```
 
 The clock uses `useNow(1000)` which is a SolidJS signal updated every second — no re-render of the entire component, just the `<time>` node.
@@ -63,7 +67,7 @@ The largest card (columns 1–5, row 2). Contains:
 |---|---|
 | `RadialGauge` | 270° arc gauge, 0–200 AQI range, color from `category.color` |
 | Category chip | Name + colored dot, container color from `category.container` |
-| Metric rows | PM2.5 · PM10 · CO₂ · tVOC with value, unit, and `Sparkline` |
+| Metric rows | PM2.5 · NOx · CO₂ · tVOC with value, unit, and `Sparkline` |
 | Decorative blob | SVG shape colored with `category.color` at 35% opacity |
 
 The `cat()` accessor always has a fallback so the gauge renders immediately with a neutral blue before the first poll resolves:
@@ -112,16 +116,16 @@ The agenda clock (`useNow(60_000)`) updates once per minute — sufficient for t
 **Data:** `fetchAirQualityReadings` (every 10 s)
 
 Full-width telemetry chart (columns 1–6, row 3). Contains:
-- `LineChart` with four series: PM0.3 (blue), PM1 (green), PM2.5 (peach), PM10 (yellow)
+- `LineChart` with four AirGradient series: PM2.5 (peach), CO₂ (green), TVOC (violet), NOx (yellow)
 - Color-coded legend
-- Summary stats: peak PM2.5, peak PM10, avg PM1, avg PM0.3
+- Summary stats: peak PM2.5, peak CO₂, avg TVOC, avg NOx
 
 ```js
-const PM_SERIES = [
-  { id: 'pm03', label: 'PM0.3', color: '#B4C5FF' },
-  { id: 'pm1',  label: 'PM1',   color: '#82DBA6' },
-  { id: 'pm25', label: 'PM2.5', color: '#FFB59A' },
-  { id: 'pm10', label: 'PM10',  color: '#FFD68A' },
+const TELEMETRY_SERIES = [
+  { id: 'pm25', label: 'PM2.5', color: '#FFB59A', unit: 'µg/m³' },
+  { id: 'co2',  label: 'CO₂',   color: '#82DBA6', unit: 'ppm' },
+  { id: 'voc',  label: 'TVOC',  color: '#D0BCFF', unit: 'index' },
+  { id: 'nox',  label: 'NOx',   color: '#FFD68A', unit: 'index' },
 ];
 ```
 
@@ -131,14 +135,14 @@ const PM_SERIES = [
 
 **Data:** `fetchIndoorClimate` (every 1 min)
 
-Four-cell grid showing temperature, humidity, CO₂, and tVOC:
+Four-cell grid showing AirGradient temperature, humidity, CO₂, and tVOC:
 
 | Metric | Visual | Range |
 |---|---|---|
 | Temperature | `LinearTrack` | 18–26 °C mapped to 0–100% |
 | Humidity | `LinearTrack` | direct % value |
 | CO₂ | `Sparkline` | ppm |
-| tVOC | `Sparkline` | mg/m³ |
+| tVOC | `Sparkline` | index |
 
 Temperature percentage: `((temp - 18) / 8) * 100` maps 18 °C → 0%, 26 °C → 100%.
 
@@ -146,7 +150,7 @@ Temperature percentage: `((temp - 18) / 8) * 100` maps 18 °C → 0%, 26 °C →
 
 ### `BottomStrip` — `components/BottomStrip.jsx`
 
-**Data:** `fetchInsights` (5 min), `fetchReminders` (10 min), `fetchDevices` (1 min), `fetchWeather` (10 min)
+**Data:** `fetchInsights` (5 min), shared `fetchReminders` (10 min), shared `fetchAirQuality` (10 s), shared `fetchEvents` (10 min), shared `fetchWeather` (10 min)
 
 Five equal-width cells:
 
@@ -154,9 +158,9 @@ Five equal-width cells:
 |---|---|
 | Aurora Insight | Rotates through all insights every 6 s; progress dot indicator |
 | Reminders | First 3 reminders; done items struck-through |
-| Device Mesh | `online/total` count + average latency |
-| Wind | Speed + direction + condition label |
-| UV Index | Index number + WHO label + advice string |
+| System Status | AirGradient, Weather, Calendar, and Reminders reachability |
+| Wind | Compass, speed, direction, gust, and intensity |
+| UV Index | Liquid gauge, index number, max today, WHO label, and advice |
 
 The insight rotation uses a `setInterval` managed via `onMount`/`onCleanup`.
 
@@ -193,7 +197,7 @@ Minimal SVG polyline over a data array. Auto-scales Y to the min/max of the data
   width={820} height={120}
   padding={{ t: 8, r: 8, b: 22, l: 32 }}
   series={[
-    { data: pm03Series, color: '#B4C5FF' },
+    { data: pm25Series, color: '#FFB59A' },
     ...
   ]}
 />

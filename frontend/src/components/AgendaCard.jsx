@@ -1,10 +1,10 @@
 import { For, Show, createMemo } from 'solid-js';
-import { SunArc } from '../primitives';
+import { ErrorState, SunArc } from '../primitives';
 import { useNow } from '../data';
 import { createPolling } from '../data/createPolling';
 import { fetchEvents, fetchDaylight, POLL } from '../api';
 
-export default function AgendaCard() {
+export default function AgendaCard(props) {
   const now = useNow(60_000); // update once per minute — enough for date header
 
   const dayLabel = createMemo(() =>
@@ -13,10 +13,12 @@ export default function AgendaCard() {
     now().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()
   );
 
-  const events  = createPolling(fetchEvents, { interval: POLL.EVENTS });
+  const events  = props.events ?? createPolling(fetchEvents, { interval: POLL.EVENTS });
   const daylight = createPolling(fetchDaylight, { interval: POLL.DAYLIGHT });
 
   const eventList = () => events.latest?.events ?? [];
+  const hasEvents = () => Boolean(events.latest);
+  const hasEventError = () => Boolean(events.error && events.error?.code !== 'cancelled');
   const sun       = () => daylight.latest;
 
   return (
@@ -29,7 +31,7 @@ export default function AgendaCard() {
         </div>
         <div style={{ 'text-align': 'right' }}>
           <div class="t-label-md muted">EVENTS</div>
-          <div class="t-headline-lg t-num" style={{ 'font-weight': 500 }}>{eventList().length || '—'}</div>
+          <div class="t-headline-lg t-num" style={{ 'font-weight': 500 }}>{hasEvents() ? eventList().length : '—'}</div>
         </div>
       </div>
 
@@ -50,28 +52,44 @@ export default function AgendaCard() {
 
       {/* Event list */}
       <div class="agenda-list" role="list">
-        <For each={eventList()} fallback={
-          <div class="t-body-sm muted" style={{ padding: '12px 0' }}>Loading events…</div>
-        }>
-          {e => (
-            <div classList={{ 'agenda-row': true, active: e.active }} role="listitem">
-              <div style={{ display: 'flex', 'flex-direction': 'column', 'align-items': 'flex-start' }}>
-                <span class="time">{e.time}</span>
-                <span class="ampm">{e.ampm}</span>
-              </div>
-              <div>
-                <div class="title">{e.title}</div>
-                <div class="sub">{e.sub}</div>
-              </div>
-              <Show when={e.active}>
-                <span
-                  aria-label="In progress"
-                  style={{ position: 'absolute', right: '12px', top: '12px', width: '8px', height: '8px', 'border-radius': '50%', background: '#82DBA6', 'box-shadow': '0 0 0 4px rgba(130,219,166,0.20)' }}
-                />
-              </Show>
-            </div>
-          )}
-        </For>
+        <Show
+          when={!hasEventError()}
+          fallback={
+            <ErrorState
+              error={events.error}
+              icon="event_busy"
+              title="Calendar unavailable"
+            />
+          }
+        >
+          <Show
+            when={hasEvents()}
+            fallback={<div class="t-body-sm muted" style={{ padding: '12px 0' }}>Loading events…</div>}
+          >
+            <For each={eventList()} fallback={
+              <div class="t-body-sm muted" style={{ padding: '12px 0' }}>No events today</div>
+            }>
+              {e => (
+                <div classList={{ 'agenda-row': true, active: e.active }} role="listitem">
+                  <div style={{ display: 'flex', 'flex-direction': 'column', 'align-items': 'flex-start' }}>
+                    <span class="time">{e.time}</span>
+                    <span class="ampm">{e.ampm}</span>
+                  </div>
+                  <div>
+                    <div class="title">{e.title}</div>
+                    <div class="sub">{e.sub}</div>
+                  </div>
+                  <Show when={e.active}>
+                    <span
+                      aria-label="In progress"
+                      style={{ position: 'absolute', right: '12px', top: '12px', width: '8px', height: '8px', 'border-radius': '50%', background: '#82DBA6', 'box-shadow': '0 0 0 4px rgba(130,219,166,0.20)' }}
+                    />
+                  </Show>
+                </div>
+              )}
+            </For>
+          </Show>
+        </Show>
       </div>
     </article>
   );

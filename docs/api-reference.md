@@ -83,9 +83,17 @@ Current outdoor conditions and a 7-day forecast.
       "icon":            "partly_cloudy_day",
       "weather_icon":    "partly_cloudy",
       "wind_speed":      8.0,
+      "wind_degrees":    45,
       "wind_direction":  "NE",
+      "wind_gust":       18.0,
+      "wind_level":      "light",
+      "wind_label":      "Light",
+      "wind_advice":     "Light breeze",
       "humidity":        54,
       "uv_index":        4,
+      "uv_max_today":    5,
+      "uv_progress":     0.364,
+      "uv_level":        "moderate",
       "uv_label":        "Moderate",
       "uv_advice":       "Wear sunscreen",
       "location": {
@@ -107,14 +115,20 @@ Current outdoor conditions and a 7-day forecast.
 |---|---|
 | `weather_icon` | Slug for an animated SVG — resolves to `/weather/{slug}.svg` |
 | `icon` | Material Symbols icon name for compact use |
+| `wind_speed` / `wind_gust` | Open-Meteo outdoor wind values in km/h. |
+| `wind_degrees` / `wind_direction` | Raw bearing in degrees and cardinal/intercardinal display label. |
+| `wind_level` | Stable intensity token: `calm`, `light`, `breezy`, `windy`, or `strong`. |
 | `uv_index` | WHO UV scale 0–11+ |
+| `uv_max_today` | Open-Meteo daily maximum UV index forecast. |
+| `uv_progress` | Normalized 0–1 position for dashboard UV gauges using an 11+ scale. |
+| `uv_level` | Stable risk token: `low`, `moderate`, `high`, `very_high`, or `extreme`. |
 | `forecast[].day` | Three-letter weekday abbreviation (MON–SUN) |
 
 ---
 
 ### GET `/api/v1/air-quality`
 
-Current AQI, particulate matter, CO₂, and VOC with 28-point sparkline history.
+Current AirGradient PM2.5, CO₂, TVOC, and NOx readings with sparkline history. US AQI is derived from PM2.5 using EPA breakpoints.
 
 **Response**
 
@@ -129,15 +143,15 @@ Current AQI, particulate matter, CO₂, and VOC with 28-point sparkline history.
       "on":        "var(--md-on-good-container)"
     },
     "pm25": 8.2,
-    "pm10": 14.6,
     "co2":  612,
-    "voc":  0.42,
-    "message": "Air feels fresh — keep windows open until 14:00",
+    "voc":  120,
+    "nox":  1,
+    "message": "Air quality is Good — safe for all activities",
     "sparklines": {
       "pm25": [7.1, 8.4, ...28 points],
-      "pm10": [13.2, 14.8, ...28 points],
       "co2":  [590, 605, ...28 points],
-      "voc":  [0.38, 0.44, ...28 points]
+      "voc":  [118, 121, ...28 points],
+      "nox":  [1, 1, ...28 points]
     }
   }
 }
@@ -157,7 +171,7 @@ Current AQI, particulate matter, CO₂, and VOC with 28-point sparkline history.
 
 ### GET `/api/v1/air-quality/readings`
 
-48-point (15-min resolution, 12-hour window) historical time series for four PM channels.
+Historical time series for the AirGradient PM2.5, CO₂, TVOC, and NOx channels.
 
 **Response**
 
@@ -168,10 +182,10 @@ Current AQI, particulate matter, CO₂, and VOC with 28-point sparkline history.
     "resolution": "15min",
     "count":      48,
     "series": {
-      "pm03": [38.1, 42.7, ...48 points],
-      "pm1":  [16.2, 18.8, ...48 points],
       "pm25": [8.1,  9.4,  ...48 points],
-      "pm10": [14.3, 16.1, ...48 points]
+      "co2":  [590, 605, ...48 points],
+      "voc":  [118, 121, ...48 points],
+      "nox":  [1, 1, ...48 points]
     }
   }
 }
@@ -186,21 +200,23 @@ Current AQI, particulate matter, CO₂, and VOC with 28-point sparkline history.
 
 ### GET `/api/v1/indoor-climate`
 
-Indoor sensor readings from the living room array.
+Indoor sensor readings from the AirGradient sensor array.
 
 **Response**
 
 ```json
 {
   "data": {
-    "sensor_location": "Living Room",
-    "temperature": 21.4,
-    "humidity":    46,
+    "sensor_location": "AirGradient",
+    "temperature": 24.3,
+    "humidity":    59.7,
     "co2":         612,
-    "voc":         0.42,
+    "voc":         120,
+    "nox":         1,
     "sparklines": {
       "co2": [590, 605, ...28 points],
-      "voc": [0.38, 0.44, ...28 points]
+      "voc": [118, 121, ...28 points],
+      "nox": [1, 1, ...28 points]
     }
   }
 }
@@ -210,7 +226,7 @@ Indoor sensor readings from the living room array.
 
 ### GET `/api/v1/events`
 
-Calendar events for a given date. The `active` flag is `true` when the event is currently in progress (evaluated server-side in the configured location timezone).
+Calendar events for a given date. This endpoint reads from Google Calendar using the configured location timezone. The `active` flag is `true` when the event is currently in progress. If Google Calendar credentials are missing or invalid, the endpoint returns the shared error envelope instead of sample data.
 
 **Query parameters**
 
@@ -298,7 +314,7 @@ Sunrise, sunset, and daylight progress for today. All times are local to the con
 |---|---|
 | `progress` | Fraction of the daylight window elapsed. `0.0` = sunrise, `1.0` = sunset. Clamped to `[0, 1]`. |
 | `date` | Configured location calendar date (`YYYY-MM-DD`). |
-| `day_length_hours` | Total daylight duration in decimal hours. |
+| `day_length_hours` | Total daylight duration in decimal hours from Open-Meteo. |
 
 ---
 

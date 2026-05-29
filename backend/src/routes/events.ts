@@ -2,13 +2,15 @@ import { createRoute, z } from '@hono/zod-openapi';
 import type { OpenAPIHono } from '@hono/zod-openapi';
 import { config } from '../config.js';
 import { localNow } from '../lib/time.js';
-import { commonErrorResponses } from '../lib/api-error.js';
+import { upstreamError } from '../lib/upstream-error.js';
+import { upstreamErrorResponses } from '../lib/api-error.js';
+import { googleCalendar } from '../services/google-calendar.js';
 
 // ─── Schemas ─────────────────────────────────────────────────────────────────
 
 const EventSchema = z.object({
   id:     z.string().openapi({ example: 'evt-001' }),
-  time:   z.string().openapi({ example: '09:30', description: 'HH:MM format' }),
+  time:   z.string().openapi({ example: '09:30', description: 'HH:MM format, or ALL for all-day events' }),
   ampm:   z.string().openapi({ example: 'AM' }),
   title:  z.string().openapi({ example: 'Design Review · Aurora' }),
   sub:    z.string().openapi({ example: 'Studio · with Mira & Theo' }),
@@ -37,22 +39,6 @@ const EventsQuerySchema = z.object({
   }),
 });
 
-// ─── Mock data provider ──────────────────────────────────────────────────────
-
-function getEventsMock(date: string) {
-  const { totalMinutes: h } = localNow(config.location.timezone);
-
-  const events = [
-    { id: 'evt-001', time: '09:30', ampm: 'AM', title: 'Design Review · Aurora',   sub: 'Studio · with Mira & Theo',    active: h >= 570  && h < 630  },
-    { id: 'evt-002', time: '11:00', ampm: 'AM', title: 'AirGradient firmware OTA', sub: 'Pi mesh · 4 sensors queued',   active: h >= 660  && h < 720  },
-    { id: 'evt-003', time: '01:15', ampm: 'PM', title: 'Lunch · Linnea',           sub: 'Spritzhaus · table for two',   active: h >= 795  && h < 855  },
-    { id: 'evt-004', time: '03:00', ampm: 'PM', title: 'Pickup · Noa',             sub: 'Vasaparken · soccer practice', active: h >= 900  && h < 960  },
-    { id: 'evt-005', time: '07:30', ampm: 'PM', title: 'Movie night',              sub: 'Living room · queue ready',    active: h >= 1170 && h < 1290 }, // 2-hour window (19:30–21:30)
-  ];
-
-  return { data: { date, events } };
-}
-
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
 const getEventsRoute = createRoute({
@@ -60,21 +46,31 @@ const getEventsRoute = createRoute({
   path:        '/v1/events',
   tags:        ['Events'],
   summary:     'List events for a date',
-  description: 'Returns the scheduled events for the given date (defaults to today). The `active` flag is true when the event is currently in progress.',
+  description: [
+    'Returns Google Calendar events for the given date (defaults to today).',
+    '',
+    'Set Google Calendar credentials in the backend environment to enable this endpoint.',
+  ].join('\n'),
   request:     { query: EventsQuerySchema },
   responses: {
     200: {
       content:     { 'application/json': { schema: EventsResponseSchema } },
       description: "Today's event list",
     },
-    ...commonErrorResponses,
+    ...upstreamErrorResponses,
   },
 });
 
 export function registerEventsRoutes(app: OpenAPIHono) {
-  app.openapi(getEventsRoute, (c) => {
+  app.openapi(getEventsRoute, async (c) => {
     const { date } = c.req.valid('query');
     const target = date ?? localNow(config.location.timezone).date;
-    return c.json(getEventsMock(target), 200);
+
+    try {
+      const events = await googleCalendar.listEventsForDate(target, config.location.timezone);
+      return c.json({ data: { date: target, events } }, 200);
+    } catch (err) {
+      return upstreamError(err);
+    }
   });
 }

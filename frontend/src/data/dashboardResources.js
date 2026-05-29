@@ -1,9 +1,11 @@
 import { createPolling } from './createPolling';
-import { fetchDevices, fetchWeather, POLL } from '../api';
+import { fetchWeather, fetchAirQuality, fetchEvents, fetchReminders, POLL } from '../api';
 
 export function createDashboardResources() {
   return {
-    devices: createPolling(fetchDevices, { interval: POLL.DEVICES }),
-    weather: createPolling(fetchWeather, { interval: POLL.WEATHER }),
+    weather:    createPolling(fetchWeather,    { interval: POLL.WEATHER }),
+    airQuality: createPolling(fetchAirQuality, { interval: POLL.AIR_QUALITY }),
+    events:     createPolling(fetchEvents,     { interval: POLL.EVENTS }),
+    reminders:  createPolling(fetchReminders,  { interval: POLL.REMINDERS }),
   };
 }

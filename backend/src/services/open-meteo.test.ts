@@ -11,6 +11,7 @@ const weatherPayload = {
     weather_code: 2,
     wind_speed_10m: 11,
     wind_direction_10m: 45,
+    wind_gusts_10m: 20,
     uv_index: 4.2,
   },
   daily: {
@@ -20,6 +21,7 @@ const weatherPayload = {
     temperature_2m_min: [12.2],
     sunrise: ['2026-05-29T04:55'],
     sunset: ['2026-05-29T20:55'],
+    daylight_duration: [57_600],
     uv_index_max: [5.1],
   },
 };

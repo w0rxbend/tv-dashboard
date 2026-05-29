@@ -127,7 +127,7 @@ import PollenCard from './components/PollenCard';
 
 ## Working with Real API Data
 
-Weather, air quality, and daylight already use Open-Meteo through `backend/src/services/open-meteo.ts`. Keep route handlers thin: validate/cache/fetch in a service, map upstream payloads with pure functions, then return the local response shape from the route.
+Weather and daylight use Open-Meteo through `backend/src/services/open-meteo.ts`; indoor telemetry uses the AirGradient observability backend through `backend/src/services/airgradient.ts`. Keep route handlers thin: validate/cache/fetch in a service, map upstream payloads with pure functions, then return the local response shape from the route.
 
 ### Example: mapping Open-Meteo weather
 
@@ -179,7 +179,36 @@ LOCATION_LAT=50.4501
 LOCATION_LON=30.5234
 ```
 
-`PORT`, `LOCATION_TIMEZONE`, `LOCATION_LAT`, `LOCATION_LON`, `CORS_ORIGINS`, and `OPEN_METEO_*` timeout/cache settings are validated at startup so invalid runtime config fails fast.
+`PORT`, `LOCATION_TIMEZONE`, `LOCATION_LAT`, `LOCATION_LON`, `CORS_ORIGINS`, `OPEN_METEO_*`, `AIRGRADIENT_*`, and `GOOGLE_CALENDAR_*` timeout/cache settings are validated at startup so invalid runtime config fails fast.
+
+---
+
+## AirGradient Integration
+
+`GET /api/v1/air-quality`, `GET /api/v1/air-quality/readings`, and `GET /api/v1/indoor-climate` read from the AirGradient observability backend:
+
+```bash
+AIRGRADIENT_API_BASE_URL=http://localhost:8080/api/
+AIRGRADIENT_RANGE_WINDOW=12h
+AIRGRADIENT_RANGE_STEP=15m
+```
+
+The adapter calls `/metrics/current` for the latest PM2.5, CO₂, TVOC, NOx, temperature, and humidity values, then calls `/metrics/range` for the PM2.5/CO₂/TVOC/NOx chart series. Responses are Zod-validated, cached briefly, and served stale if the AirGradient backend has a transient failure.
+
+---
+
+## Google Calendar Integration
+
+`GET /api/v1/events` reads from Google Calendar. For a private calendar, create an OAuth web client, request the `https://www.googleapis.com/auth/calendar.readonly` scope, obtain a refresh token with offline access, then set:
+
+```bash
+GOOGLE_CALENDAR_ID=primary
+GOOGLE_CALENDAR_CLIENT_ID=...
+GOOGLE_CALENDAR_CLIENT_SECRET=...
+GOOGLE_CALENDAR_REFRESH_TOKEN=...
+```
+
+For a public calendar only, set `GOOGLE_CALENDAR_ID` and `GOOGLE_CALENDAR_API_KEY`. The backend asks Google for the configured day using local midnight boundaries from `LOCATION_TIMEZONE`, expands recurring events with `singleEvents=true`, orders by start time, and caches the mapped dashboard rows briefly. If neither OAuth credentials nor an API key are configured, `/api/v1/events` returns `503 calendar_not_configured`.
 
 ---
 
@@ -225,14 +254,14 @@ makeSeries(28, 8.2, 3, 9)
 // → [8.41, 7.98, 9.12, ...] — always the same for seed=9
 ```
 
-Use distinct seeds per metric to avoid correlated sparklines:
+Use distinct seeds per metric to avoid correlated sparklines in mock-only routes:
 
 ```typescript
 sparklines: {
   pm25: makeSeries(28, 8.2, 3, 9),   // seed 9
-  pm10: makeSeries(28, 14.6, 5, 15), // seed 15
   co2:  makeSeries(28, 612, 80, 27), // seed 27
-  voc:  makeSeries(28, 0.42, 0.15, 31), // seed 31
+  voc:  makeSeries(28, 120, 25, 31), // seed 31
+  nox:  makeSeries(28, 1, 0.5, 43), // seed 43
 }
 ```
 

@@ -7,6 +7,7 @@ test('cardErrorMessage hides cancellations and describes timeouts', () => {
   assert.equal(cardErrorMessage(), '');
   assert.equal(cardErrorMessage({ code: 'cancelled' }), '');
   assert.equal(cardErrorMessage({ code: 'timeout' }), 'Request timed out — retrying');
+  assert.equal(cardErrorMessage({ code: 'calendar_not_configured', message: 'HTTP 503' }), 'Google Calendar is not configured');
   assert.equal(cardErrorMessage({ message: 'No route' }), 'No route');
 });
 

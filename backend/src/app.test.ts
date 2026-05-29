@@ -27,12 +27,20 @@ test('events date query must be a valid ISO calendar date', async () => {
   assert.ok(Array.isArray(body.error.details));
 });
 
+test('events route reports missing Google Calendar configuration', async () => {
+  const res = await app.fetch(new Request('http://localhost/api/v1/events?date=2026-05-29'));
+  const body = await res.json();
+
+  assert.equal(res.status, 503);
+  assert.equal(body.error.code, 'calendar_not_configured');
+});
+
 test('OpenAPI documents upstream-backed error responses', async () => {
   const res = await app.fetch(new Request('http://localhost/api/openapi.json'));
   const spec = await res.json();
 
   assert.equal(res.status, 200);
-  for (const path of ['/api/v1/weather', '/api/v1/air-quality', '/api/v1/daylight']) {
+  for (const path of ['/api/v1/weather', '/api/v1/air-quality', '/api/v1/air-quality/readings', '/api/v1/indoor-climate', '/api/v1/daylight', '/api/v1/events']) {
     assert.ok(spec.paths[path].get.responses['502']);
     assert.ok(spec.paths[path].get.responses['503']);
     assert.ok(spec.paths[path].get.responses['504']);

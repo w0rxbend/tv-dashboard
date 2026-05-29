@@ -39,6 +39,11 @@ function csv(envVar: string, fallback: string[]): string[] {
   return raw.split(',').map((value) => value.trim()).filter(Boolean);
 }
 
+function optionalString(envVar: string): string | undefined {
+  const raw = process.env[envVar]?.trim();
+  return raw || undefined;
+}
+
 function requireOrigins(envVar: string, fallback: string[]): string[] {
   const origins = csv(envVar, fallback);
   for (const origin of origins) {
@@ -54,6 +59,39 @@ function requireOrigins(envVar: string, fallback: string[]): string[] {
     }
   }
   return origins;
+}
+
+function requireUrl(envVar: string, fallback: string): string {
+  const value = optionalString(envVar) ?? fallback;
+  try {
+    return new URL(value).toString();
+  } catch {
+    throw new Error(`${envVar}="${value}" is not a valid URL`);
+  }
+}
+
+function requireBaseUrl(envVar: string, fallback: string): string {
+  const value = requireUrl(envVar, fallback);
+  return value.endsWith('/') ? value : `${value}/`;
+}
+
+function requirePattern(envVar: string, fallback: string, pattern: RegExp): string {
+  const value = optionalString(envVar) ?? fallback;
+  if (!pattern.test(value)) throw new Error(`${envVar}="${value}" is invalid`);
+  return value;
+}
+
+const googleCalendarClientId = optionalString('GOOGLE_CALENDAR_CLIENT_ID');
+const googleCalendarClientSecret = optionalString('GOOGLE_CALENDAR_CLIENT_SECRET');
+const googleCalendarRefreshToken = optionalString('GOOGLE_CALENDAR_REFRESH_TOKEN');
+const googleCalendarOauthVars = [
+  googleCalendarClientId,
+  googleCalendarClientSecret,
+  googleCalendarRefreshToken,
+];
+
+if (googleCalendarOauthVars.some(Boolean) && !googleCalendarOauthVars.every(Boolean)) {
+  throw new Error('GOOGLE_CALENDAR_CLIENT_ID, GOOGLE_CALENDAR_CLIENT_SECRET, and GOOGLE_CALENDAR_REFRESH_TOKEN must be set together');
 }
 
 export const config = {
@@ -74,7 +112,26 @@ export const config = {
     openMeteoRetries: requireInteger('OPEN_METEO_RETRIES', 1, { min: 0, max: 5 }),
     openMeteoRetryBackoffMs: requireInteger('OPEN_METEO_RETRY_BACKOFF_MS', 100, { min: 0, max: 5_000 }),
     weatherTtlMs: requireInteger('OPEN_METEO_WEATHER_TTL_MS', 15 * 60 * 1_000, { min: 1_000, max: 24 * 60 * 60 * 1_000 }),
-    airQualityTtlMs: requireInteger('OPEN_METEO_AIR_QUALITY_TTL_MS', 30 * 60 * 1_000, { min: 1_000, max: 24 * 60 * 60 * 1_000 }),
     staleFallbackMs: requireInteger('OPEN_METEO_STALE_FALLBACK_MS', 2 * 60 * 60 * 1_000, { min: 0, max: 7 * 24 * 60 * 60 * 1_000 }),
+  },
+  googleCalendar: {
+    calendarId: optionalString('GOOGLE_CALENDAR_ID') ?? 'primary',
+    apiKey: optionalString('GOOGLE_CALENDAR_API_KEY'),
+    clientId: googleCalendarClientId,
+    clientSecret: googleCalendarClientSecret,
+    refreshToken: googleCalendarRefreshToken,
+    timeoutMs: requireInteger('GOOGLE_CALENDAR_TIMEOUT_MS', 8_000, { min: 100, max: 60_000 }),
+    ttlMs: requireInteger('GOOGLE_CALENDAR_TTL_MS', 5 * 60 * 1_000, { min: 1_000, max: 24 * 60 * 60 * 1_000 }),
+    staleFallbackMs: requireInteger('GOOGLE_CALENDAR_STALE_FALLBACK_MS', 60 * 60 * 1_000, { min: 0, max: 7 * 24 * 60 * 60 * 1_000 }),
+    maxResults: requireInteger('GOOGLE_CALENDAR_MAX_RESULTS', 10, { min: 1, max: 50 }),
+  },
+  airGradient: {
+    apiBaseUrl: requireBaseUrl('AIRGRADIENT_API_BASE_URL', 'http://localhost:8080/api/'),
+    timeoutMs: requireInteger('AIRGRADIENT_TIMEOUT_MS', 8_000, { min: 100, max: 60_000 }),
+    ttlMs: requireInteger('AIRGRADIENT_TTL_MS', 10_000, { min: 1_000, max: 24 * 60 * 60 * 1_000 }),
+    rangeTtlMs: requireInteger('AIRGRADIENT_RANGE_TTL_MS', 30_000, { min: 1_000, max: 24 * 60 * 60 * 1_000 }),
+    staleFallbackMs: requireInteger('AIRGRADIENT_STALE_FALLBACK_MS', 5 * 60 * 1_000, { min: 0, max: 7 * 24 * 60 * 60 * 1_000 }),
+    rangeWindow: requirePattern('AIRGRADIENT_RANGE_WINDOW', '12h', /^\d+[hd]$/),
+    rangeStep: requirePattern('AIRGRADIENT_RANGE_STEP', '15m', /^\d+[smh]$/),
   },
 };

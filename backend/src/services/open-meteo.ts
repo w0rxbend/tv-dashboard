@@ -4,36 +4,9 @@
 import { z } from 'zod';
 import { config } from '../config.js';
 import { UpstreamError } from '../lib/api-error.js';
+import { TtlCache } from '../lib/ttl-cache.js';
 
-// ─── TTL cache ───────────────────────────────────────────────────────────────
-
-interface CacheEntry<T> { value: T; expiresAt: number; staleUntil: number; }
-
-class TtlCache<T> {
-  private readonly store = new Map<string, CacheEntry<T>>();
-
-  get(key: string): T | undefined {
-    const entry = this.store.get(key);
-    if (!entry) return undefined;
-    if (Date.now() > entry.expiresAt) return undefined;
-    return entry.value;
-  }
-
-  getStale(key: string): T | undefined {
-    const entry = this.store.get(key);
-    if (!entry) return undefined;
-    if (Date.now() > entry.staleUntil) { this.store.delete(key); return undefined; }
-    return entry.value;
-  }
-
-  set(key: string, value: T, ttlMs: number, staleMs: number): void {
-    const now = Date.now();
-    this.store.set(key, { value, expiresAt: now + ttlMs, staleUntil: now + ttlMs + staleMs });
-  }
-}
-
-const weatherCache    = new TtlCache<OpenMeteoWeatherResponse>();
-const airQualityCache = new TtlCache<OpenMeteoAirQualityResponse>();
+const weatherCache = new TtlCache<OpenMeteoWeatherResponse>();
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -45,6 +18,7 @@ export interface OpenMeteoWeatherResponse {
     weather_code:          number;
     wind_speed_10m:        number;
     wind_direction_10m:    number;
+    wind_gusts_10m:        number;
     uv_index:              number;
   };
   daily: {
@@ -54,16 +28,8 @@ export interface OpenMeteoWeatherResponse {
     temperature_2m_min: number[];
     sunrise:            string[];
     sunset:             string[];
+    daylight_duration:  number[];
     uv_index_max:       number[];
-  };
-}
-
-export interface OpenMeteoAirQualityResponse {
-  current: {
-    european_aqi: number;
-    us_aqi:       number;
-    pm2_5:        number;
-    pm10:         number;
   };
 }
 
@@ -78,6 +44,7 @@ const OpenMeteoWeatherSchema = z.object({
     weather_code: z.number(),
     wind_speed_10m: z.number(),
     wind_direction_10m: z.number(),
+    wind_gusts_10m: z.number(),
     uv_index: z.number(),
   }),
   daily: z.object({
@@ -87,6 +54,7 @@ const OpenMeteoWeatherSchema = z.object({
     temperature_2m_min: z.array(z.number()).min(1),
     sunrise: z.array(OpenMeteoDateTimeSchema).min(1),
     sunset: z.array(OpenMeteoDateTimeSchema).min(1),
+    daylight_duration: z.array(z.number()).min(1),
     uv_index_max: z.array(z.number()).min(1),
   }).refine((daily) => {
     const len = daily.time.length;
@@ -96,18 +64,10 @@ const OpenMeteoWeatherSchema = z.object({
       daily.temperature_2m_min,
       daily.sunrise,
       daily.sunset,
+      daily.daylight_duration,
       daily.uv_index_max,
     ].every((values) => values.length === len);
   }, 'Expected Open-Meteo daily arrays to have matching lengths'),
-});
-
-const OpenMeteoAirQualitySchema = z.object({
-  current: z.object({
-    european_aqi: z.number(),
-    us_aqi: z.number(),
-    pm2_5: z.number(),
-    pm10: z.number(),
-  }),
 });
 
 // ─── WMO weather code mapping ─────────────────────────────────────────────────
@@ -145,14 +105,38 @@ export function degreesToCardinal(degrees: number): string {
   return CARDINALS[index];
 }
 
+export type WindLevel = 'calm' | 'light' | 'breezy' | 'windy' | 'strong';
+
+export interface WindMeta {
+  wind_level:  WindLevel;
+  wind_label:  string;
+  wind_advice: string;
+}
+
+export function windMeta(speedKmh: number): WindMeta {
+  if (speedKmh < 2)  return { wind_level: 'calm',   wind_label: 'Calm',        wind_advice: 'Air is still'       };
+  if (speedKmh < 13) return { wind_level: 'light',  wind_label: 'Light',       wind_advice: 'Light breeze'       };
+  if (speedKmh < 29) return { wind_level: 'breezy', wind_label: 'Breezy',      wind_advice: 'Comfortable breeze' };
+  if (speedKmh < 39) return { wind_level: 'windy',  wind_label: 'Windy',       wind_advice: 'Secure loose items' };
+  return                    { wind_level: 'strong', wind_label: 'Strong wind', wind_advice: 'Gusty conditions'   };
+}
+
 // ─── UV label helper ──────────────────────────────────────────────────────────
 
-export function uvMeta(index: number): { uv_label: string; uv_advice: string } {
-  if (index <= 2)  return { uv_label: 'Low',       uv_advice: 'No protection needed' };
-  if (index <= 5)  return { uv_label: 'Moderate',  uv_advice: 'Wear sunscreen'       };
-  if (index <= 7)  return { uv_label: 'High',      uv_advice: 'Seek shade midday'    };
-  if (index <= 10) return { uv_label: 'Very High', uv_advice: 'Cover up outdoors'    };
-  return                  { uv_label: 'Extreme',   uv_advice: 'Avoid sun exposure'   };
+export type UvLevel = 'low' | 'moderate' | 'high' | 'very_high' | 'extreme';
+
+export interface UvMeta {
+  uv_level:  UvLevel;
+  uv_label:  string;
+  uv_advice: string;
+}
+
+export function uvMeta(index: number): UvMeta {
+  if (index <= 2)  return { uv_level: 'low',       uv_label: 'Low',       uv_advice: 'No protection needed' };
+  if (index <= 5)  return { uv_level: 'moderate',  uv_label: 'Moderate',  uv_advice: 'Wear sunscreen'       };
+  if (index <= 7)  return { uv_level: 'high',      uv_label: 'High',      uv_advice: 'Seek shade midday'    };
+  if (index <= 10) return { uv_level: 'very_high', uv_label: 'Very High', uv_advice: 'Cover up outdoors'    };
+  return                  { uv_level: 'extreme',   uv_label: 'Extreme',   uv_advice: 'Avoid sun exposure'   };
 }
 
 // ─── Fetch functions (with caching) ──────────────────────────────────────────
@@ -233,8 +217,8 @@ export async function fetchWeatherFromAPI(
   const params = new URLSearchParams({
     latitude:      String(lat),
     longitude:     String(lon),
-    current:       'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,uv_index',
-    daily:         'weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max',
+    current:       'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,uv_index',
+    daily:         'weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,daylight_duration,uv_index_max',
     timezone:      'auto',
     forecast_days: '7',
   });
@@ -246,33 +230,6 @@ export async function fetchWeatherFromAPI(
     return data;
   } catch (err) {
     const stale = weatherCache.getStale(cacheKey);
-    if (stale) return stale;
-    throw err;
-  }
-}
-
-export async function fetchAirQualityFromAPI(
-  lat: number,
-  lon: number,
-): Promise<OpenMeteoAirQualityResponse> {
-  const cacheKey = `aq:${lat},${lon}`;
-  const cached = airQualityCache.get(cacheKey);
-  if (cached) return cached;
-
-  const params = new URLSearchParams({
-    latitude:  String(lat),
-    longitude: String(lon),
-    current:   'european_aqi,us_aqi,pm2_5,pm10',
-    timezone:  'auto',
-  });
-
-  try {
-    const payload = await fetchJsonWithTimeout(`https://air-quality-api.open-meteo.com/v1/air-quality?${params}`);
-    const data = parseUpstream(OpenMeteoAirQualitySchema, payload);
-    airQualityCache.set(cacheKey, data, config.upstream.airQualityTtlMs, config.upstream.staleFallbackMs);
-    return data;
-  } catch (err) {
-    const stale = airQualityCache.getStale(cacheKey);
     if (stale) return stale;
     throw err;
   }

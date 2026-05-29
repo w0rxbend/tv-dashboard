@@ -49,7 +49,7 @@ export default function IndoorCard() {
         <div class="indoor-cell">
           <MS name="science" class="indoor-cell-icon" aria-hidden="true"/>
           <span class="lbl">tVOC</span>
-          <span><span class="v t-num">{data()?.voc?.toFixed(2) ?? '—'}</span><span class="u">mg/m³</span></span>
+          <span><span class="v t-num">{data()?.voc ?? '—'}</span><span class="u">index</span></span>
           {sparks() && <Sparkline data={sparks().voc} width={140} height={22} color="#D0BCFF"/>}
         </div>
       </div>

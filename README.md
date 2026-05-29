@@ -13,13 +13,13 @@ backend/    Hono + Zod/OpenAPI — REST endpoints, Swagger UI built-in
 
 | Card | Data Domain | Refresh |
 |---|---|---|
-| TopBar | Clock · Location · Sensor mesh | 1 s clock, 1 min devices |
-| AQI Hero | US AQI, PM2.5/PM10, CO₂, VOC + sparklines | 10 s |
-| Weather | Current conditions + 7-day forecast | 10 min |
+| TopBar | Clock · Location · data feed status | 1 s clock, domain polling |
+| AQI Hero | AirGradient US AQI, PM2.5, CO₂, TVOC, NOx + sparklines | 10 s |
+| Weather | Current conditions, outdoor wind, UV index + 7-day forecast | 10 min |
 | Agenda | Today's calendar, sunrise/sunset arc | 10 min / 24 h |
-| Telemetry Chart | 48-point PM0.3/PM1/PM2.5/PM10 history | 10 s |
+| Telemetry Chart | AirGradient PM2.5/CO₂/TVOC/NOx history | 10 s |
 | Indoor Climate | Temperature, humidity, CO₂, VOC + sparklines | 1 min |
-| Bottom Strip | Insights · Reminders · Devices · Wind · UV | 5–10 min |
+| Bottom Strip | Insights · Reminders · System status · Wind · UV | 5–10 min |
 
 The display is **design-fixed at 1920×1080** and scaled independently on each axis with `transform: scale(sx, sy)`, so it renders correctly on any screen size without reflowing.
 
@@ -65,6 +65,46 @@ cd frontend && npm run build && npm run preview
 
 For production you typically serve `frontend/dist/` as static files from the same origin as the backend, so no CORS configuration is needed.
 
+### Docker Deployment
+
+The repository ships two Compose entry points:
+
+- `compose.local.yml` builds local images from `backend/Dockerfile` and `frontend/Dockerfile`.
+- `compose.prod.yml` runs prebuilt images from a registry.
+
+Local container deployment:
+
+```bash
+# Optional: copy and edit runtime config first.
+cp backend/.env.example backend/.env
+
+# If AirGradient runs on the host, use the container-reachable host name.
+# Docker Desktop/Linux with host-gateway:
+# AIRGRADIENT_API_BASE_URL=http://host.docker.internal:8080/api/
+# Podman:
+# AIRGRADIENT_API_BASE_URL=http://host.containers.internal:8080/api/
+
+BACKEND_ENV_FILE=./backend/.env docker compose -f compose.local.yml up --build -d
+# → Dashboard: http://localhost:8080
+# → Backend:   http://localhost:3001/api/health
+```
+
+Production registry deployment:
+
+```bash
+docker build -t ghcr.io/your-org/tv-dashboard-backend:1.0.0 ./backend
+docker build -t ghcr.io/your-org/tv-dashboard-frontend:1.0.0 ./frontend
+docker push ghcr.io/your-org/tv-dashboard-backend:1.0.0
+docker push ghcr.io/your-org/tv-dashboard-frontend:1.0.0
+
+REGISTRY=ghcr.io/your-org \
+IMAGE_TAG=1.0.0 \
+BACKEND_ENV_FILE=./backend/.env \
+docker compose -f compose.prod.yml up -d
+```
+
+The frontend image is an Nginx static server on port `8080` and proxies `/api/*` to the backend service inside the Compose network.
+
 ### Quality gate
 
 ```bash
@@ -79,7 +119,10 @@ The root check runs formatting whitespace validation, backend typechecking, fron
 
 ```
 tv-dashboard/
+├── compose.local.yml           # Local image build deployment
+├── compose.prod.yml            # Registry image deployment
 ├── backend/
+│   ├── Dockerfile
 │   ├── src/
 │   │   ├── app.ts              # Hono app — CORS, route registration, OpenAPI spec
 │   │   ├── index.ts            # Node server entry point (PORT env var)
@@ -100,6 +143,8 @@ tv-dashboard/
 │   └── tsconfig.json
 │
 ├── frontend/
+│   ├── Dockerfile
+│   ├── nginx.conf              # Static frontend + /api reverse proxy
 │   ├── src/
 │   │   ├── App.jsx             # Root — viewport scaling + grid mount
 │   │   ├── index.jsx           # SolidJS render entry
@@ -134,8 +179,23 @@ tv-dashboard/
 | `OPEN_METEO_RETRIES` | backend | `1` | Retry count for retryable Open-Meteo failures |
 | `OPEN_METEO_RETRY_BACKOFF_MS` | backend | `100` | Initial retry backoff in milliseconds |
 | `OPEN_METEO_WEATHER_TTL_MS` | backend | `900000` | Fresh-cache TTL for weather responses |
-| `OPEN_METEO_AIR_QUALITY_TTL_MS` | backend | `1800000` | Fresh-cache TTL for air-quality responses |
 | `OPEN_METEO_STALE_FALLBACK_MS` | backend | `7200000` | Stale cache window used when upstream refresh fails |
+| `GOOGLE_CALENDAR_ID` | backend | `primary` | Calendar ID for `/api/v1/events` |
+| `GOOGLE_CALENDAR_CLIENT_ID` | backend | unset | OAuth client ID for private Google Calendar access |
+| `GOOGLE_CALENDAR_CLIENT_SECRET` | backend | unset | OAuth client secret |
+| `GOOGLE_CALENDAR_REFRESH_TOKEN` | backend | unset | OAuth refresh token with Calendar readonly access |
+| `GOOGLE_CALENDAR_API_KEY` | backend | unset | API key for public calendars only; required if OAuth credentials are unset |
+| `GOOGLE_CALENDAR_TIMEOUT_MS` | backend | `8000` | Google Calendar request timeout |
+| `GOOGLE_CALENDAR_TTL_MS` | backend | `300000` | Fresh-cache TTL for calendar events |
+| `GOOGLE_CALENDAR_STALE_FALLBACK_MS` | backend | `3600000` | Stale cache window used when Calendar refresh fails |
+| `GOOGLE_CALENDAR_MAX_RESULTS` | backend | `10` | Maximum events returned for a day |
+| `AIRGRADIENT_API_BASE_URL` | backend | `http://localhost:8080/api/` | Base URL for the AirGradient observability backend |
+| `AIRGRADIENT_TIMEOUT_MS` | backend | `8000` | AirGradient request timeout |
+| `AIRGRADIENT_TTL_MS` | backend | `10000` | Fresh-cache TTL for current AirGradient readings |
+| `AIRGRADIENT_RANGE_TTL_MS` | backend | `30000` | Fresh-cache TTL for AirGradient range series |
+| `AIRGRADIENT_STALE_FALLBACK_MS` | backend | `300000` | Stale cache window used when AirGradient refresh fails |
+| `AIRGRADIENT_RANGE_WINDOW` | backend | `12h` | Range window for dashboard telemetry |
+| `AIRGRADIENT_RANGE_STEP` | backend | `15m` | Range step for dashboard telemetry |
 | `VITE_API_BASE` | frontend | `/api` | Base path for all API calls |
 
 Create `backend/.env` or pass vars inline — there is no `.env` file committed.
@@ -153,10 +213,10 @@ All endpoints live under `/api/v1/`. The backend auto-generates a full OpenAPI 3
 | Method | Path | Description |
 |---|---|---|
 | GET | `/api/v1/location` | Location config (city, timezone, lat/lng) |
-| GET | `/api/v1/weather` | Current conditions + 7-day forecast |
-| GET | `/api/v1/air-quality` | AQI, PM2.5/PM10, CO₂, VOC + sparklines |
-| GET | `/api/v1/air-quality/readings` | 48-point 12-h PM channel history |
-| GET | `/api/v1/indoor-climate` | Indoor temp, humidity, CO₂, VOC |
+| GET | `/api/v1/weather` | Current conditions, outdoor wind, UV index + 7-day forecast |
+| GET | `/api/v1/air-quality` | AirGradient AQI, PM2.5, CO₂, TVOC, NOx + sparklines |
+| GET | `/api/v1/air-quality/readings` | AirGradient PM2.5, CO₂, TVOC, NOx history |
+| GET | `/api/v1/indoor-climate` | AirGradient indoor temp, humidity, CO₂, TVOC, NOx |
 | GET | `/api/v1/events?date=` | Calendar events for a date |
 | GET | `/api/v1/reminders` | Reminder list |
 | GET | `/api/v1/daylight` | Sunrise, sunset, progress, day length |

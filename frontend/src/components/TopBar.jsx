@@ -1,8 +1,8 @@
 import { createMemo, createResource } from 'solid-js';
 import { MS } from '../primitives';
 import { useNow } from '../data';
-import { createPolling } from '../data/createPolling';
-import { fetchLocation, fetchDevices, POLL } from '../api';
+import { summarizeStatuses, resourceStatus } from '../data/resourceStatus';
+import { fetchLocation } from '../api';
 import AppLogo from './AppLogo';
 
 export default function TopBar(props) {
@@ -14,7 +14,12 @@ export default function TopBar(props) {
   const date = createMemo(() => now().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
 
   const [location] = createResource(fetchLocation);
-  const devices    = props.devices ?? createPolling(fetchDevices, { interval: POLL.DEVICES });
+  const feedCounts = createMemo(() => summarizeStatuses([
+    resourceStatus(props.airQuality),
+    resourceStatus(props.weather),
+    resourceStatus(props.events),
+    resourceStatus(props.reminders),
+  ]));
 
   const locationLabel = () => {
     const loc = location();
@@ -22,11 +27,12 @@ export default function TopBar(props) {
     return `${loc.city} · ${loc.region}`;
   };
 
-  const meshOnline = () => (devices.latest?.online ?? 0) === (devices.latest?.total ?? -1);
-  const meshLabel  = () => {
-    const d = devices.latest;
-    if (!d) return 'syncing…';
-    return `Mesh synced · ${d.online}/${d.total} sensors`;
+  const feedHealthy = () => feedCounts().down === 0 && feedCounts().checking === 0;
+  const feedLabel = () => {
+    const counts = feedCounts();
+    if (counts.down) return `${counts.down} feed${counts.down === 1 ? '' : 's'} unavailable`;
+    if (counts.checking) return `Checking feeds · ${counts.live}/${counts.total}`;
+    return `Feeds live · ${counts.live}/${counts.total}`;
   };
 
   return (
@@ -57,9 +63,9 @@ export default function TopBar(props) {
           <MS name="location_on" size={16}/>
           {locationLabel()}
         </span>
-        <span class="chip chip-good">
-          {meshOnline() && <span class="live-dot" aria-hidden="true"/>}
-          {meshLabel()}
+        <span classList={{ chip: true, 'chip-good': feedHealthy(), 'chip-outline': !feedHealthy() }}>
+          {feedHealthy() && <span class="live-dot" aria-hidden="true"/>}
+          {feedLabel()}
         </span>
       </div>
     </header>
