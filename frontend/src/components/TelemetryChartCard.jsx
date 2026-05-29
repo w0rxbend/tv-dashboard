@@ -23,7 +23,7 @@ const formatNumber = (value, digits) => (
   Number.isFinite(value) ? value.toFixed(digits) : '—'
 );
 
-export default function ChartCard(props) {
+export default function TelemetryChartCard(props) {
   const readings = optionalResource(props.readings);
   const raw = () => readings.latest?.series;
 

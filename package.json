@@ -4,7 +4,7 @@
     "build": "npm run build --prefix backend && npm run build --prefix frontend",
     "typecheck": "npm run typecheck --prefix backend && npm run typecheck --prefix frontend",
     "test": "npm run test --prefix backend && npm run test --prefix frontend",
-    "lint": "npm run typecheck",
+    "lint": "npm run lint --prefix frontend && npm run typecheck",
     "format:check": "git diff --check",
     "check": "npm run format:check && npm run lint && npm run test"
   },

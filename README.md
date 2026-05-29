@@ -127,7 +127,7 @@ tv-dashboard/
 │   │   ├── app.ts              # Hono app — CORS, route registration, OpenAPI spec
 │   │   ├── index.ts            # Node server entry point (PORT env var)
 │   │   ├── lib/
-│   │   │   └── mock.ts         # Shared PRNG utilities (jitter, makeSeries, rollSeries)
+│   │   │   └── mock.ts         # Shared deterministic mock helpers
 │   │   └── routes/
 │   │       ├── air-quality.ts  # GET /v1/air-quality, GET /v1/air-quality/readings
 │   │       ├── daylight.ts     # GET /v1/daylight
@@ -151,8 +151,8 @@ tv-dashboard/
 │   │   ├── api/                # One file per domain; apiGet() client
 │   │   │   ├── client.js       # Fetch wrapper with timeout + abort + error types
 │   │   │   └── index.js        # Re-exports + POLL constants
-│   │   ├── components/         # Seven card components + AppLogo + WeatherIcon
-│   │   ├── data/               # createPolling, useNow, useDrift, useStream, seed
+│   │   ├── components/         # Dashboard cards, bottom strip widgets, weather icons
+│   │   ├── data/               # createPolledResource, dashboard resources, status helpers
 │   │   ├── primitives/         # SVG UI atoms (Sparkline, LineChart, RadialGauge, …)
 │   │   └── styles/             # CSS custom properties + layout + typography
 │   ├── index.html
@@ -234,11 +234,10 @@ Defined in `frontend/src/api/index.js` as `POLL`:
 
 ```js
 POLL.AIR_QUALITY    = 10_000    // 10 s  — sensor telemetry changes rapidly
-POLL.ENERGY         = 30_000    // 30 s
 POLL.INDOOR_CLIMATE = 60_000    // 1 min
-POLL.DEVICES        = 60_000    // 1 min
 POLL.INSIGHTS       = 300_000   // 5 min
 POLL.WEATHER        = 600_000   // 10 min
+POLL.LOCATION       = 600_000   // 10 min
 POLL.EVENTS         = 600_000   // 10 min
 POLL.REMINDERS      = 600_000   // 10 min
 POLL.DAYLIGHT       = 86_400_000 // 24 h — sun times don't change intra-day

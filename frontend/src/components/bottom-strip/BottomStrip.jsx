@@ -13,8 +13,12 @@ const EMPTY_INSIGHT = { icon: 'auto_awesome', title: '...', sub: '' };
 export default function BottomStrip(props) {
   const [activeInsightIndex, setActiveInsightIndex] = createSignal(0);
   const airQuality = optionalResource(props.airQuality);
+  const airQualityReadings = optionalResource(props.airQualityReadings);
+  const daylight = optionalResource(props.daylight);
   const events = optionalResource(props.events);
+  const indoorClimate = optionalResource(props.indoorClimate);
   const insights = optionalResource(props.insights);
+  const location = optionalResource(props.location);
   const remindersResource = optionalResource(props.reminders);
   const weather = optionalResource(props.weather);
 
@@ -46,7 +50,11 @@ export default function BottomStrip(props) {
       <div class="bs-cell status-cell" aria-label="System status">
         <SystemStatusWidget
           airQuality={airQuality}
+          airQualityReadings={airQualityReadings}
+          daylight={daylight}
           weather={weather}
+          indoorClimate={indoorClimate}
+          location={location}
           events={events}
           reminders={remindersResource}
           insights={insights}

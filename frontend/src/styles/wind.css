@@ -1,0 +1,226 @@
+.wind-cell {
+  padding: 14px 16px;
+  justify-content: stretch;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(159,215,255,0.18) 0, transparent 36%),
+    linear-gradient(145deg, #143556 0%, #116593 48%, #16354F 100%);
+  color: #F4FAFF;
+}
+
+.wind-widget {
+  --wind-accent: #9FD7FF;
+  --wind-ink: #D8F0FF;
+  --wind-soft: rgba(63, 171, 226, 0.22);
+  --wind-angle: 0deg;
+  --wind-strength: 0%;
+  height: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) 8px auto;
+  gap: 8px;
+}
+
+.wind-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--wind-ink);
+}
+
+.wind-icon-chip {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--wind-accent);
+  background: rgba(255,255,255,0.10);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14);
+  flex-shrink: 0;
+}
+
+.wind-main {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.wind-compass {
+  width: 118px;
+  aspect-ratio: 1;
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+  background:
+    radial-gradient(circle, rgba(20,53,86,0.96) 0 38%, transparent 39%),
+    radial-gradient(circle, transparent 0 62%, rgba(255,255,255,0.16) 63% 65%, transparent 66%),
+    repeating-conic-gradient(from -1deg, rgba(216,240,255,0.32) 0 1.4deg, transparent 1.4deg 6deg);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.14),
+    inset 0 0 28px rgba(255,255,255,0.06);
+}
+
+.wind-compass::after {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.wind-cardinal {
+  position: absolute;
+  z-index: 3;
+  color: var(--wind-ink);
+  font: 700 18px/1 var(--font-display);
+  text-shadow: 0 1px 10px rgba(0,0,0,0.25);
+}
+
+.wind-cardinal.n { top: 14px; left: 50%; transform: translateX(-50%); }
+.wind-cardinal.e { right: 15px; top: 50%; transform: translateY(-50%); }
+.wind-cardinal.s { bottom: 14px; left: 50%; transform: translateX(-50%); }
+.wind-cardinal.w { left: 15px; top: 50%; transform: translateY(-50%); }
+
+.wind-arrow {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  transform: rotate(calc(var(--wind-angle) + 90deg));
+  transition: transform 500ms ease;
+}
+
+.wind-arrow::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 43%;
+  height: 4px;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: #FFFFFF;
+  box-shadow: 0 0 16px rgba(255,255,255,0.28);
+}
+
+.wind-arrow::after {
+  content: "";
+  position: absolute;
+  left: calc(50% + 39%);
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform: translateY(-50%);
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 14px solid #FFFFFF;
+  filter: drop-shadow(0 0 8px rgba(255,255,255,0.22));
+}
+
+.wind-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 4;
+  width: 58px;
+  height: 58px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  background: rgba(17, 85, 126, 0.82);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.12),
+    0 8px 24px rgba(0,0,0,0.18);
+}
+
+.wind-speed {
+  font: 500 31px/0.86 var(--font-display);
+  letter-spacing: 0;
+  color: #FFFFFF;
+  font-variant-numeric: tabular-nums;
+}
+
+.wind-unit {
+  margin-top: 5px;
+  color: rgba(255,255,255,0.78);
+  font: 600 10px/1 var(--font-display);
+}
+
+.wind-readout {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.wind-label {
+  max-width: 100%;
+  color: #FFFFFF;
+  font: 650 18px/1.05 var(--font-display);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wind-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  padding-block: 5px;
+  border-top: 1px solid rgba(255,255,255,0.14);
+}
+
+.wind-stat span {
+  color: rgba(255,255,255,0.68);
+  font: 600 10.5px/1 var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.wind-stat strong {
+  color: var(--wind-ink);
+  font: 650 18px/1 var(--font-display);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.wind-stat small {
+  font-size: 10px;
+  color: rgba(255,255,255,0.68);
+}
+
+.wind-meter {
+  position: relative;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.13);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.10);
+}
+
+.wind-meter span {
+  display: block;
+  width: var(--wind-strength);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #B8D7FF, var(--wind-accent));
+  transition: width 500ms ease;
+}
+
+.wind-advice {
+  min-height: 15px;
+  color: rgba(255,255,255,0.72);
+  font: 500 12.5px/1.15 var(--font-body);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wind-widget.is-loading .wind-arrow,
+.wind-widget.is-loading .wind-meter span {
+  opacity: 0.45;
+}

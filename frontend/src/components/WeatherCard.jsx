@@ -57,7 +57,7 @@ export default function WeatherCard(props) {
           {(f, i) => (
             <div classList={{ 'wx-fcell': true, today: i() === 0 }} role="listitem">
               <span class="t-label-md" style={{ opacity: i() === 0 ? 1 : 0.7, 'font-size': '11px' }}>{f.day}</span>
-              <WeatherIcon condition={f.weather_icon ?? 'cloudy'} size={36}/>
+              <WeatherIcon condition={f.weather_icon ?? 'cloudy'} size={36} animated={false}/>
               <span class="t-title-md t-num">{f.high}°</span>
               <span class="t-body-sm" style={{ opacity: 0.6 }}>{f.low}°</span>
             </div>

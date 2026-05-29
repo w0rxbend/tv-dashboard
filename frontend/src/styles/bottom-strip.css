@@ -1,0 +1,126 @@
+.bottom-strip {
+  height: 100%;
+  display: grid;
+  grid-template-columns: 2fr 1.4fr 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+.bs-cell {
+  background: var(--md-surface-container);
+  border-radius: var(--shape-lg);
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.bs-cell-icon {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 64px !important;
+  opacity: 0.14;
+  pointer-events: none;
+  font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 48 !important;
+}
+
+.bs-cell.primary {
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+}
+
+.bs-cell.tertiary {
+  background: var(--md-tertiary-container);
+  color: var(--md-on-tertiary-container);
+}
+
+.bs-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--shape-md);
+  background: rgba(255,255,255,0.16);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.bs-insight-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.bs-insight-copy {
+  min-width: 0;
+}
+
+.bs-insight-label {
+  opacity: 0.75;
+}
+
+.bs-insight-title {
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.bs-insight-sub {
+  margin-top: 2px;
+  opacity: 0.8;
+}
+
+.bs-progress-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.bs-progress-dots span {
+  height: 4px;
+  flex: 1;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.16);
+  transition: background 400ms;
+}
+
+.bs-progress-dots span.active {
+  background: currentColor;
+}
+
+.reminder-row {
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.reminder-row + .reminder-row {
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 6px;
+  margin-top: 2px;
+}
+
+.reminder-row .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--md-tertiary);
+}
+
+.reminder-row .dot.done {
+  background: var(--md-outline);
+}
+
+.reminder-row .text {
+  font: 500 13.5px/1.2 var(--font-display);
+}
+
+.reminder-row .when {
+  font: 500 10.5px/1 var(--font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--md-on-surface-variant);
+}

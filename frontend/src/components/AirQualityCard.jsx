@@ -1,7 +1,7 @@
 import { Sparkline, RadialGauge, CardError } from '../primitives';
 import { optionalResource } from '../data/emptyResource';
 
-export default function AQICard(props) {
+export default function AirQualityCard(props) {
   const airQuality = optionalResource(props.airQuality);
 
   const data = () => airQuality.latest;

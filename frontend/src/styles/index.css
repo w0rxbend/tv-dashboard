@@ -3,4 +3,14 @@
 @import './layout.css';
 @import './typography.css';
 @import './components.css';
+@import './topbar.css';
+@import './air-quality.css';
+@import './weather.css';
+@import './agenda.css';
+@import './telemetry.css';
+@import './indoor-climate.css';
+@import './bottom-strip.css';
+@import './status.css';
+@import './wind.css';
+@import './uv.css';
 @import './animations.css';

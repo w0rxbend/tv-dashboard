@@ -1,0 +1,54 @@
+.indoor-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+}
+
+.indoor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  flex: 1;
+}
+
+.indoor-cell {
+  background: var(--md-surface-container-low);
+  border-radius: var(--shape-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.indoor-cell .lbl {
+  font-size: 10.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--md-on-surface-variant);
+}
+
+.indoor-cell .v {
+  font: 500 30px/1 var(--font-display);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  margin-top: 2px;
+}
+
+.indoor-cell .u {
+  font-size: 13px;
+  color: var(--md-on-surface-variant);
+  margin-left: 4px;
+}
+
+.indoor-cell-icon {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 56px !important;
+  opacity: 0.18;
+  pointer-events: none;
+  font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 48 !important;
+}

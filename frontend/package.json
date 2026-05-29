@@ -6,7 +6,10 @@
     "dev": "vite",
     "build": "vite build",
     "typecheck": "vite build",
+    "lint": "node scripts/check-source-standards.mjs",
+    "format:check": "git diff --check -- .",
     "test": "node --conditions browser --import ../backend/node_modules/tsx/dist/esm/index.mjs --test src/**/*.test.js",
+    "check": "npm run format:check && npm run lint && npm run test && npm run build",
     "preview": "vite preview"
   },
   "dependencies": {

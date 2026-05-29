@@ -1,0 +1,64 @@
+.aqi-hero {
+  background: linear-gradient(135deg, var(--md-primary-container) 0%, #1A3060 100%);
+  color: var(--md-on-primary-container);
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 28px;
+  height: 100%;
+}
+
+.aqi-gauge-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.aqi-gauge-center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.aqi-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.aqi-metric-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.aqi-metric {
+  background: rgba(255,255,255,0.06);
+  border-radius: var(--shape-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.aqi-metric .lbl {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.aqi-metric .v {
+  font: 500 26px/1 var(--font-display);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.aqi-metric .u {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-left: 4px;
+}

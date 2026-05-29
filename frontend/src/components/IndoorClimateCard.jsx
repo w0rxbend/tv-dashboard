@@ -4,7 +4,7 @@ import { optionalResource } from '../data/emptyResource';
 const TEMP_MIN_C = 18;
 const TEMP_MAX_C = 26;
 
-export default function IndoorCard(props) {
+export default function IndoorClimateCard(props) {
   const indoorClimate = optionalResource(props.indoorClimate);
 
   const data    = () => indoorClimate.latest;

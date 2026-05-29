@@ -6,6 +6,7 @@ import {
   fetchEvents,
   fetchIndoorClimate,
   fetchInsights,
+  fetchLocation,
   fetchReminders,
   fetchWeather,
   POLL,
@@ -19,6 +20,7 @@ export function createDashboardResources() {
     events:             createPolledResource(fetchEvents,             { interval: POLL.EVENTS }),
     indoorClimate:      createPolledResource(fetchIndoorClimate,      { interval: POLL.INDOOR_CLIMATE }),
     insights:           createPolledResource(fetchInsights,           { interval: POLL.INSIGHTS }),
+    location:           createPolledResource(fetchLocation,           { interval: POLL.LOCATION }),
     reminders:          createPolledResource(fetchReminders,          { interval: POLL.REMINDERS }),
     weather:            createPolledResource(fetchWeather,            { interval: POLL.WEATHER }),
   };

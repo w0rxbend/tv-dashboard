@@ -1,28 +1,29 @@
-import { createMemo, createResource } from 'solid-js';
+import { createMemo } from 'solid-js';
 import { MS } from '../primitives';
-import { useNow } from '../data';
+import { createNow } from '../data';
 import { summarizeStatuses, resourceStatus } from '../data/resourceStatus';
-import { fetchLocation } from '../api';
+import { optionalResource } from '../data/emptyResource';
 import AppLogo from './AppLogo';
 
 export default function TopBar(props) {
-  const now  = useNow(1000);
+  const now  = createNow(1000);
   const hh   = createMemo(() => String(now().getHours()).padStart(2, '0'));
   const mm   = createMemo(() => String(now().getMinutes()).padStart(2, '0'));
   const ss   = createMemo(() => String(now().getSeconds()).padStart(2, '0'));
   const day  = createMemo(() => now().toLocaleDateString('en-US', { weekday: 'long' }));
   const date = createMemo(() => now().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
 
-  const [location] = createResource(fetchLocation);
+  const location = optionalResource(props.location);
   const feedCounts = createMemo(() => summarizeStatuses([
     resourceStatus(props.airQuality),
     resourceStatus(props.weather),
+    resourceStatus(location),
     resourceStatus(props.events),
     resourceStatus(props.reminders),
   ]));
 
   const locationLabel = () => {
-    const loc = location();
+    const loc = location.latest;
     if (!loc) return '…';
     return `${loc.city} · ${loc.region}`;
   };

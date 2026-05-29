@@ -1,0 +1,190 @@
+.uv-cell {
+  padding: 14px 16px;
+  justify-content: stretch;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(255,214,138,0.12) 0, transparent 34%),
+    linear-gradient(155deg, #1B202B 0%, #10141C 58%, #171C25 100%);
+  color: #F7F9FF;
+}
+
+.uv-widget {
+  --uv-accent: var(--md-good);
+  --uv-accent-soft: rgba(130, 219, 166, 0.22);
+  --uv-ink: #D9F8E6;
+  --uv-fill: 0%;
+  height: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) 10px auto;
+  gap: 8px;
+}
+
+.uv-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--uv-ink);
+}
+
+.uv-icon-chip {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--uv-accent) 24%, transparent);
+  color: var(--uv-accent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--uv-accent) 26%, transparent);
+  flex-shrink: 0;
+}
+
+.uv-main {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 13px;
+  align-items: center;
+  min-height: 0;
+}
+
+.uv-badge {
+  width: 92px;
+  aspect-ratio: 1;
+  position: relative;
+  overflow: hidden;
+  border-radius: 36% 64% 44% 56% / 50% 38% 62% 50%;
+  background: #0D1118;
+  box-shadow:
+    0 18px 42px rgba(0,0,0,0.36),
+    inset 0 0 0 1px rgba(255,255,255,0.08),
+    inset 0 -10px 24px rgba(0,0,0,0.24);
+}
+
+.uv-badge::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 40% 60% 48% 52% / 52% 42% 58% 48%;
+  border: 1px solid rgba(255,255,255,0.10);
+  z-index: 2;
+}
+
+.uv-badge-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--uv-fill);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--uv-accent) 72%, white) 0%, var(--uv-accent) 100%);
+  transition: height 500ms ease;
+}
+
+.uv-badge-glass {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 36% 22%, rgba(255,255,255,0.18), transparent 24%),
+    linear-gradient(180deg, rgba(255,255,255,0.08), transparent 52%);
+  z-index: 1;
+}
+
+.uv-badge-max,
+.uv-badge-zero {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  font: 600 11px/1 var(--font-display);
+  color: rgba(255,255,255,0.78);
+  font-variant-numeric: tabular-nums;
+}
+
+.uv-badge-max { top: 14px; }
+.uv-badge-zero { bottom: 13px; }
+
+.uv-readout {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.uv-value {
+  font: 400 58px/0.92 var(--font-display);
+  letter-spacing: 0;
+  color: #FFFFFF;
+  font-variant-numeric: tabular-nums;
+}
+
+.uv-label {
+  max-width: 100%;
+  margin-top: 6px;
+  color: var(--uv-ink);
+  font: 600 19px/1.05 var(--font-display);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.uv-peak {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.74);
+  font: 600 10px/1 var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.uv-peak strong {
+  color: #FFFFFF;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.uv-track-wrap {
+  display: flex;
+  align-items: center;
+}
+
+.uv-track {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #82DBA6 0 19%, #FFD68A 19% 46%, #FFB59A 46% 64%, #FFB4AB 64% 91%, #D0BCFF 91% 100%);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18);
+}
+
+.uv-track-marker {
+  position: absolute;
+  left: clamp(7px, var(--uv-fill), calc(100% - 7px));
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: #10141C;
+  border: 3px solid var(--uv-ink);
+  box-shadow: 0 0 0 4px rgba(0,0,0,0.20), 0 0 18px var(--uv-accent);
+  transition: left 500ms ease;
+}
+
+.uv-advice {
+  min-height: 30px;
+  color: rgba(255,255,255,0.72);
+  font: 500 12.5px/1.2 var(--font-body);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.uv-widget.is-loading .uv-badge-fill,
+.uv-widget.is-loading .uv-track-marker {
+  opacity: 0.45;
+}

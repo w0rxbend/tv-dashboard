@@ -1,10 +1,10 @@
 import { For, Show, createMemo } from 'solid-js';
 import { ErrorState, SunArc } from '../primitives';
-import { useNow } from '../data';
+import { createNow } from '../data';
 import { optionalResource } from '../data/emptyResource';
 
 export default function AgendaCard(props) {
-  const now = useNow(60_000); // update once per minute — enough for date header
+  const now = createNow(60_000); // update once per minute — enough for date header
 
   const dayLabel = createMemo(() =>
     now().toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase() +

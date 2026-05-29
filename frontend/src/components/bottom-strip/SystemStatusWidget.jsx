@@ -1,21 +1,10 @@
 import { createMemo, For } from 'solid-js';
 import { MS } from '../../primitives';
-import { serviceSnapshot, summarizeStatuses } from '../../data/resourceStatus';
+import { createSystemStatusModel } from './systemStatusViewModel';
 
 export function SystemStatusWidget(props) {
-  const services = createMemo(() => [
-    serviceSnapshot({ key: 'air',      label: 'AirGradient', icon: 'sensors',           resource: props.airQuality }),
-    serviceSnapshot({ key: 'weather',  label: 'Weather',     icon: 'partly_cloudy_day', resource: props.weather }),
-    serviceSnapshot({ key: 'calendar', label: 'Calendar',    icon: 'event_available',   resource: props.events }),
-    serviceSnapshot({ key: 'tasks',    label: 'Reminders',   icon: 'checklist',         resource: props.reminders }),
-    serviceSnapshot({ key: 'insights', label: 'Insights',    icon: 'auto_awesome',      resource: props.insights }),
-  ]);
-  const counts = createMemo(() => summarizeStatuses(services().map((item) => item.status)));
-  const summary = createMemo(() => {
-    if (counts().down) return `${counts().down} feed${counts().down === 1 ? '' : 's'} unavailable`;
-    if (counts().checking) return 'Checking data feeds';
-    return 'All systems operational';
-  });
+  const model = createMemo(() => createSystemStatusModel(props));
+  const counts = () => model().counts;
 
   return (
     <div
@@ -33,12 +22,12 @@ export function SystemStatusWidget(props) {
       </div>
 
       <div class="status-summary">
-        <div class="status-title">{summary()}</div>
+        <div class="status-title">{model().summary}</div>
         <div class="status-subline">{counts().live}/{counts().total} feeds reachable</div>
       </div>
 
       <div class="status-grid" role="list">
-        <For each={services()}>
+        <For each={model().services}>
           {(service) => (
             <div class="status-service" classList={{ [service.status]: true }} role="listitem">
               <MS name={service.icon} size={18} aria-hidden="true"/>

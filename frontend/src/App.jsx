@@ -1,11 +1,11 @@
 import { createSignal, onMount, onCleanup } from 'solid-js';
 import TopBar      from './components/TopBar';
-import AQICard     from './components/AQICard';
+import AirQualityCard from './components/AirQualityCard';
 import WeatherCard from './components/WeatherCard';
 import AgendaCard  from './components/AgendaCard';
-import ChartCard   from './components/ChartCard';
-import IndoorCard  from './components/IndoorCard';
-import BottomStrip from './components/BottomStrip';
+import TelemetryChartCard from './components/TelemetryChartCard';
+import IndoorClimateCard from './components/IndoorClimateCard';
+import DashboardBottomStrip from './components/DashboardBottomStrip';
 import { createDashboardResources } from './data/dashboardResources';
 
 const DESIGN_W = 1920;
@@ -49,26 +49,31 @@ export default function App() {
             <TopBar
               airQuality={resources.airQuality}
               weather={resources.weather}
+              location={resources.location}
               events={resources.events}
               reminders={resources.reminders}
             />
           </div>
-          <div class="area-aqi"><AQICard airQuality={resources.airQuality}/></div>
+          <div class="area-aqi"><AirQualityCard airQuality={resources.airQuality}/></div>
           <div class="area-wx"><WeatherCard weather={resources.weather}/></div>
           <div class="area-agenda">
             <AgendaCard events={resources.events} daylight={resources.daylight}/>
           </div>
           <div class="area-chart">
-            <ChartCard readings={resources.airQualityReadings}/>
+            <TelemetryChartCard readings={resources.airQualityReadings}/>
           </div>
           <div class="area-indoor">
-            <IndoorCard indoorClimate={resources.indoorClimate}/>
+            <IndoorClimateCard indoorClimate={resources.indoorClimate}/>
           </div>
           <div class="area-bottom">
-            <BottomStrip
+            <DashboardBottomStrip
               insights={resources.insights}
               weather={resources.weather}
+              location={resources.location}
               airQuality={resources.airQuality}
+              airQualityReadings={resources.airQualityReadings}
+              indoorClimate={resources.indoorClimate}
+              daylight={resources.daylight}
               events={resources.events}
               reminders={resources.reminders}
             />
